@@ -165,6 +165,14 @@ app.get('/', (req, res) => {
 });
 
 // Tạo MySQL connection pool
+// Debug log để kiểm tra biến môi trường (xem có bị dư khoảng trắng không)
+console.log('🔌 DB Config Check:', {
+  host: `"${process.env.DB_HOST}"`,
+  port: `"${process.env.DB_PORT}"`,
+  user: `"${process.env.DB_USER}"`,
+  database: `"${process.env.DB_NAME}"`
+});
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -173,9 +181,9 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  // Aiven yêu cầu SSL, thêm cấu hình này để không bị lỗi kết nối
+  // Aiven yêu cầu SSL
   ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: true // Hoặc false nếu gặp lỗi self-signed certificate
+    rejectUnauthorized: false // Tạm thời tắt check chứng chỉ để tránh lỗi handshake
   } : undefined
 });
 
