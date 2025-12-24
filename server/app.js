@@ -175,6 +175,7 @@ console.log('🔌 DB Config Check:', {
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306, // Thêm dòng này vào connection pool
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'edexis',
