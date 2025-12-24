@@ -23,7 +23,7 @@ const aiRoutes = require('./routes/shared/ai');
 
 // Teacher routes
 const teacherClassesRoutes = require('./routes/teacher/classes');
-const teacherExamRoutes = require('./routes/teacher/exams'); 
+const teacherExamRoutes = require('./routes/teacher/exams');
 const teacherCheatingRoutes = require('./routes/teacher/cheating');
 const gradingRoutes = require('./routes/teacher/grading');
 const teacherStatisticsRoutes = require('./routes/teacher/statistics');
@@ -33,7 +33,7 @@ const teacherMaterialsRoutes = require('./routes/teacher/materials');
 
 // Student routes
 const studentClassesRoutes = require('./routes/student/classes');
-const studentExamRoutes = require('./routes/student/exams'); 
+const studentExamRoutes = require('./routes/student/exams');
 const submissionRoutes = require('./routes/student/submissions');
 const studentStatisticsRoutes = require('./routes/student/statistics');
 
@@ -173,6 +173,10 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  // Aiven yêu cầu SSL, thêm cấu hình này để không bị lỗi kết nối
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: true // Hoặc false nếu gặp lỗi self-signed certificate
+  } : undefined
 });
 
 // Test database connection
@@ -224,7 +228,7 @@ app.use('/api/ai', aiRoutes);
 
 // Teacher routes
 app.use('/api/teacher/classes', teacherClassesRoutes);
-app.use('/api/teacher/exams', teacherExamRoutes); 
+app.use('/api/teacher/exams', teacherExamRoutes);
 app.use('/api/teacher/cheating', teacherCheatingRoutes);
 app.use('/api/teacher/grading', gradingRoutes);
 app.use('/api/teacher/statistics', teacherStatisticsRoutes);
@@ -248,7 +252,7 @@ app.use('/api/teacher', teacherQuestionAnalysisRoutes);
 
 // Student routes
 app.use('/api/student/classes', studentClassesRoutes);
-app.use('/api/student/exams', studentExamRoutes); 
+app.use('/api/student/exams', studentExamRoutes);
 app.use('/api/student/submissions', submissionRoutes);
 app.use('/api/student/statistics', studentStatisticsRoutes);
 app.use('/api/student/practice', require('./routes/student/practice'));
@@ -260,7 +264,7 @@ app.use('/api/admin', adminRoutes);
 app.use((req, res, next) => {
   console.log(` 404 - Route not found: ${req.method} ${req.path}`);
   // Trả về JSON thay vì HTML
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Route not found',
     path: req.path,
     method: req.method
