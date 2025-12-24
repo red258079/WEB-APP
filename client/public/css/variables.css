@@ -1,0 +1,228 @@
+/* ============================================
+   COLOR SYSTEM - ĐỒNG BỘ MÀU SẮC
+   ============================================ */
+:root {
+    /* Primary Colors - Màu chính (tone dịu) */
+    --primary-color: #7f8ac5;
+    --primary-dark: #6a75af;
+    --primary-light: #a3aedc;
+    --primary-gradient: linear-gradient(135deg, #7f8ac5 0%, #a5b4db 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #6a75af 0%, #9aa6cf 100%);
+    --primary-soft-bg: rgba(127, 138, 197, 0.18);
+    
+    /* Secondary Colors - Màu phụ */
+    --secondary-color: #98b6c6;
+    --secondary-dark: #7d99a8;
+    --secondary-light: #c3d9e3;
+    --secondary-soft-bg: rgba(152, 182, 198, 0.2);
+    
+    /* Success Colors */
+    --success-color: #26de81;
+    --success-dark: #1fb86a;
+    --success-light: #4ee99a;
+    --success-gradient: linear-gradient(45deg, #43e97b, #38f9d7);
+    --success-soft-bg: rgba(38, 222, 129, 0.15);
+    
+    /* Warning Colors */
+    --warning-color: #ffa502;
+    --warning-dark: #e69400;
+    --warning-light: #ffb833;
+    --warning-soft-bg: rgba(255, 165, 2, 0.18);
+    
+    /* Danger/Error Colors */
+    --danger-color: #ff4757;
+    --danger-dark: #e63946;
+    --danger-light: #ff6b7a;
+    --danger-soft-bg: rgba(255, 71, 87, 0.15);
+    
+    /* Info Colors */
+    --info-color: #4facfe;
+    --info-dark: #2d8fe8;
+    --info-light: #6bb5ff;
+    --info-soft-bg: rgba(79, 172, 254, 0.18);
+    
+    /* Neutral Colors */
+    --white: #ffffff;
+    --black: #000000;
+    --gray-50: #f8f9fa;
+    --gray-100: #e9ecef;
+    --gray-200: #dee2e6;
+    --gray-300: #ced4da;
+    --gray-400: #adb5bd;
+    --gray-500: #6c757d;
+    --gray-600: #495057;
+    --gray-700: #343a40;
+    --gray-800: #212529;
+    --gray-900: #1a1a1a;
+    
+    /* Background Colors */
+    --bg-primary: var(--gray-50);
+    --bg-secondary: var(--white);
+    --bg-tertiary: var(--gray-100);
+    --bg-gradient: linear-gradient(135deg, #f4f6fb 0%, #e9effa 100%);
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    
+    /* Text Colors */
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --text-tertiary: #718096;
+    --text-light: rgba(255, 255, 255, 0.9);
+    --text-muted: var(--gray-500);
+    
+    /* Border Colors */
+    --border-color: #e1e8ed;
+    --border-light: var(--gray-200);
+    --border-dark: var(--gray-400);
+    
+    /* Shadow */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+    --shadow-primary: 0 8px 32px rgba(102, 126, 234, 0.37);
+    --shadow-hover: 0 10px 30px rgba(102, 126, 234, 0.3);
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+    
+    /* Typography */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 28px;
+    --font-size-4xl: 32px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    
+    /* Layout */
+    --sidebar-width: 280px;
+    --header-height: 60px;
+    --container-max-width: 1200px;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+/* Mobile First Approach */
+/* xs: 0px - 575px (Mobile) */
+/* sm: 576px - 767px (Large Mobile) */
+/* md: 768px - 991px (Tablet) */
+/* lg: 992px - 1199px (Desktop) */
+/* xl: 1200px+ (Large Desktop) */
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-info { color: var(--info-color) !important; }
+.text-muted { color: var(--text-muted) !important; }
+
+.bg-primary { background: var(--primary-gradient) !important; }
+.bg-success { background: var(--success-gradient) !important; }
+.bg-white { background: var(--white) !important; }
+.bg-gray { background: var(--gray-50) !important; }
+
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }
+.shadow-primary { box-shadow: var(--shadow-primary) !important; }
+
+/* ============================================
+   RESPONSIVE HELPERS
+   ============================================ */
+@media (max-width: 575.98px) {
+    :root {
+        --sidebar-width: 100%;
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+        --font-size-base: 14px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+}
+
+@media (min-width: 992px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+}
+
+/* ============================================
+   DARK MODE COLOR SYSTEM
+   ============================================ */
+body.dark-mode {
+    /* Text Colors - Dark Mode */
+    --dm-text-primary: #E4E4E7;
+    --dm-text-secondary: #A1A1AA;
+    
+    /* Background Colors - Dark Mode */
+    --dm-bg-primary: #0D1117;
+    --dm-bg-container: #111827;
+    --dm-bg-table-row: rgba(255, 255, 255, 0.03);
+    --dm-border-table: rgba(255, 255, 255, 0.06);
+    
+    /* Sidebar Colors - Dark Mode */
+    --dm-sidebar-text: #E4E4E7;
+    --dm-sidebar-active: #A78BFA;
+    --dm-sidebar-active-alt: #C084FC;
+    --dm-sidebar-icon: #A1A1AA;
+    
+    /* Badge Colors - Dark Mode */
+    --dm-badge-low-bg: #1F4D2B;
+    --dm-badge-low-text: #A3FFCC;
+    --dm-badge-danger-bg: #4C1F1F;
+    --dm-badge-danger-text: #FFB3B3;
+    --dm-badge-warning-bg: #4C3A1F;
+    --dm-badge-warning-text: #FFE8A3;
+    
+    /* Button Colors - Dark Mode */
+    --dm-btn-primary: #4F46E5;
+    --dm-btn-primary-gradient: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+    --dm-btn-primary-hover: #4338CA;
+    --dm-btn-primary-gradient-hover: linear-gradient(135deg, #4338CA 0%, #5B5FEF 100%);
+}
+
+

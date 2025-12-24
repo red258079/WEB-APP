@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Bài Thi - EDEXIS</title>
+    <link rel="icon" type="image/png" href="/client/public/images/edu.png">
+    <link rel="stylesheet" href="../../public/css/scroll-to-top.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .result-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .result-header.pending {
+            background: linear-gradient(135deg, #ffa502 0%, #ff8c00 100%);
+        }
+
+        .result-header h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .pending-message {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .result-body {
+            padding: 40px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        /* Mobile grid layout: 3 columns for first row, 2 columns for second row */
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            /* First 3 items: first row (3 columns) */
+            .summary-grid .summary-card:nth-child(1),
+            .summary-grid .summary-card:nth-child(2),
+            .summary-grid .summary-card:nth-child(3) {
+                grid-column: span 1;
+            }
+
+            /* 4th item: second row, column 1 */
+            .summary-grid .summary-card:nth-child(4) {
+                grid-column: 1;
+            }
+
+            /* 5th item: second row, column 2 (to center the two items) */
+            .summary-grid .summary-card:nth-child(5) {
+                grid-column: 2;
+            }
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .summary-card {
+                padding: 15px 10px;
+                border-radius: 8px;
+            }
+
+            .summary-number {
+                font-size: 28px;
+            }
+
+            .summary-label {
+                font-size: 12px;
+                margin-top: 8px;
+            }
+        }
+
+        .question-result {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ddd;
+        }
+
+        .question-result.correct {
+            border-left-color: #26de81;
+            background: #f0fff4;
+        }
+
+        .question-result.incorrect {
+            border-left-color: #ff4757;
+            background: #fff5f5;
+        }
+
+        .question-result.unanswered {
+            border-left-color: #ffa502;
+            background: #fffbf0;
+        }
+
+        .question-result.pending {
+            border-left-color: #4299e1;
+            background: #f0f9ff;
+        }
+
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .question-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .question-title>span:first-child {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .question-title>span:last-child {
+                margin-left: 0 !important;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-start;
+            }
+        }
+
+        .status-icon {
+            font-size: 20px;
+        }
+
+        .answer-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        .answer-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .answer-value {
+            font-weight: 600;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .essay-answer {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: white;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .option-item {
+                padding: 10px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+        }
+
+        .option-item.correct-answer {
+            background: #d4edda;
+            border: 2px solid #26de81;
+            font-weight: 600;
+        }
+
+        .option-item.student-wrong {
+            background: #f8d7da;
+            border: 2px solid #ff4757;
+        }
+
+        .option-item.student-correct {
+            background: #d4edda;
+            border: 2px solid #26de81;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong {
+            color: #1976d2;
+        }
+
+        .suggested-materials-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .suggested-materials-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .materials-icon {
+            font-size: 1.5rem;
+        }
+
+        .suggested-materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .material-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .material-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .material-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .material-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .material-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+
+        .material-description {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            word-wrap: break-word;
+        }
+
+        .download-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .suggested-materials-container {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .suggested-materials-header {
+                font-size: 0.95rem;
+                margin-bottom: 10px;
+            }
+
+            .materials-icon {
+                font-size: 1.3rem;
+            }
+
+            .material-link {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .material-icon {
+                font-size: 1.3rem;
+            }
+
+            .material-title {
+                font-size: 0.9rem;
+            }
+
+            .material-description {
+                font-size: 0.8rem;
+            }
+
+            .download-icon {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .result-container {
+                border-radius: 10px;
+            }
+
+            .result-header {
+                padding: 25px 15px;
+            }
+
+            .result-header h1 {
+                font-size: 24px;
+            }
+
+            .result-body {
+                padding: 15px;
+            }
+
+            .score-display {
+                font-size: 42px;
+            }
+
+            .result-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .meta-item {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .question-result {
+                padding: 15px;
+                margin-bottom: 12px;
+            }
+
+            .question-title {
+                font-size: 15px;
+            }
+
+            .answer-section {
+                margin-top: 12px;
+                padding-top: 12px;
+            }
+
+            .essay-answer {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 30px;
+            }
+
+            .actions .btn {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="result-container">
+        <div class="result-header" id="resultHeader">
+            <h1 id="headerTitle">🎉 Hoàn Thành Bài Thi!</h1>
+            <div class="score-display" id="scoreDisplay">--/--</div>
+            <p style="font-size: 18px; opacity: 0.9;" id="headerSubtitle">Bạn đã hoàn thành bài thi</p>
+
+            <div id="pendingMessageContainer"></div>
+
+            <div class="result-meta">
+                <div class="meta-item">
+                    <div>📅 Ngày thi</div>
+                    <div id="examDate">--</div>
+                </div>
+                <div class="meta-item">
+                    <div>⏱️ Thời gian làm bài</div>
+                    <div id="timeTaken">--</div>
+                </div>
+                <div class="meta-item">
+                    <div>📊 Trạng thái</div>
+                    <div id="examStatus">Đã hoàn thành</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⭐ Action buttons at top -->
+        <div style="padding: 20px 40px; background: #f8f9fa; border-bottom: 2px solid #e2e8f0;">
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="./student_dashboard.html" class="btn btn-primary">🏠 Về trang chủ</a>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ In kết quả</button>
+            </div>
+        </div>
+
+        <div class="result-body">
+            <div id="infoBoxContainer"></div>
+
+            <div class="summary-grid" id="summaryGrid">
+                <div class="summary-card">
+                    <div class="summary-number" style="color: #26de81;" id="correctCount">0</div>
+                    <div class="summary-label">Câu đúng</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: #ff4757;" id="incorrectCount">0</div>
+                    <div class="summary-label">Câu sai</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: #ffa502;" id="unansweredCount">0</div>
+                    <div class="summary-label">Chưa trả lời</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: #4299e1;" id="pendingCount">0</div>
+                    <div class="summary-label" id="pendingLabel">Đang chấm</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 20px;">📋 Chi tiết từng câu hỏi</h2>
+            <div id="questionResults">
+                <p style="text-align: center; color: #666; padding: 40px;">⏳ Đang tải kết quả...</p>
+            </div>
+
+            <div class="actions">
+                <a href="./student_dashboard.html" class="btn btn-primary">🏠 Về trang chủ</a>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ In kết quả</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⭐ Scroll to top button -->
+    <button class="scroll-to-top" id="scrollToTopBtn" onclick="scrollToTop()" title="Lên đầu trang">
+        ↑
+    </button>
+
+    <script src="/client/public/js/config.js"></script>
+    <script src="/client/public/js/api.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+
+        // ⭐ Scroll to top functionality
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 100 || window.pageYOffset > 100) {
+                scrollToTopBtn.classList.add('show');
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.visibility = 'visible';
+            } else {
+                scrollToTopBtn.classList.remove('show');
+                scrollToTopBtn.style.opacity = '0';
+                scrollToTopBtn.style.visibility = 'hidden';
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!token) {
+                alert('❌ Vui lòng đăng nhập!');
+                window.location.href = './login.html';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const examId = params.get('exam_id');
+            const attemptId = params.get('attempt_id');
+
+            if (!examId || !attemptId) {
+                alert('❌ Không tìm thấy thông tin bài thi!');
+                window.location.href = './student_dashboard.html';
+                return;
+            }
+
+            await loadResult(examId, attemptId);
+        });
+
+        async function loadResult(examId, attemptId) {
+            try {
+                console.log('🔍 Fetching result:', { examId, attemptId });
+
+                // Sử dụng apiGet từ api.js - tự động xử lý URL và errors
+                const data = await apiGet(`/api/student/exams/${examId}/result/${attemptId}`);
+                console.log('✅ Result data:', data);
+
+                if (!data.attempt || !data.results) {
+                    console.error('❌ Dữ liệu không hợp lệ:', data);
+                    throw new Error('Dữ liệu kết quả không hợp lệ');
+                }
+
+                displayResult(data);
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('questionResults').innerHTML = `
+                <div style="text-align: center; color: #ff4757; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" style="margin-top: 20px;" onclick="window.location.href='./student_dashboard.html'">
+                        Về trang chủ
+                    </button>
+                </div>
+            `;
+            }
+        }
+
+        function displayResult(data) {
+            const attempt = data.attempt;
+            const results = data.results;
+
+            console.log('📊 Raw data:', data);
+            console.log('📊 Results length:', results.length);
+
+            // Phân loại câu hỏi
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unansweredCount = 0;
+            let pendingCount = 0;
+            let hasPendingQuestions = false;
+
+            results.forEach((r, idx) => {
+                const hasAnswer = (r.option_id !== null && r.option_id !== undefined) ||
+                    (r.student_answer !== null && r.student_answer !== undefined && r.student_answer !== '');
+
+                // Kiểm tra câu hỏi cần chấm thủ công
+                const isPendingGrade = (r.question_type === 'Essay' || r.question_type === 'FillInBlank') && hasAnswer;
+
+                if (isPendingGrade) {
+                    pendingCount++;
+                    hasPendingQuestions = true;
+                } else if (!hasAnswer) {
+                    unansweredCount++;
+                } else if (r.is_correct === 1) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            });
+
+            console.log('📊 Stats:', { correctCount, incorrectCount, unansweredCount, pendingCount });
+
+            // Cập nhật header dựa trên trạng thái
+            // QUAN TRỌNG: Chỉ hiển thị "đang chấm" nếu chưa được chấm hoàn toàn
+            if (hasPendingQuestions && !attempt.is_fully_graded) {
+                document.getElementById('resultHeader').classList.add('pending');
+                document.getElementById('headerTitle').innerHTML = '✅ Đã Nộp Bài!';
+                document.getElementById('headerSubtitle').textContent = 'Bài thi của bạn đang chờ giáo viên chấm điểm';
+
+                document.getElementById('pendingMessageContainer').innerHTML = `
+                <div class="pending-message">
+                    <strong>⏳ Thông báo:</strong> Bài thi có câu tự luận/điền khẩu cần giáo viên chấm thủ công.<br>
+                    Điểm số sẽ được cập nhật sau khi giáo viên hoàn tất chấm bài.
+                </div>
+            `;
+
+                document.getElementById('infoBoxContainer').innerHTML = `
+                <div class="info-box">
+                    <strong>ℹ️ Lưu ý:</strong> Điểm hiển thị dưới đây chỉ là điểm tạm tính cho phần trắc nghiệm. 
+                    Điểm cuối cùng sẽ được cập nhật sau khi giáo viên chấm xong phần tự luận.
+                </div>
+            `;
+            } else if (attempt.is_fully_graded) {
+                // Đã chấm xong
+                document.getElementById('resultHeader').classList.remove('pending');
+                document.getElementById('headerTitle').innerHTML = '✅ Kết Quả Bài Thi';
+                document.getElementById('headerSubtitle').textContent = 'Bài thi của bạn đã được giáo viên chấm điểm';
+
+                document.getElementById('pendingMessageContainer').innerHTML = '';
+                document.getElementById('infoBoxContainer').innerHTML = '';
+            }
+
+            // Hiển thị điểm
+            // QUAN TRỌNG: Chỉ coi là "đang chấm" nếu is_fully_graded = 0
+            const hasPendingGrading = !attempt.is_fully_graded && (attempt.has_pending_grading || hasPendingQuestions);
+
+            if (hasPendingGrading) {
+                document.getElementById('scoreDisplay').innerHTML = `
+                <div style="font-size: 36px; font-weight: 600; color: #667eea; margin-bottom: 10px;">
+                    ✅ Đã hoàn thành bài thi
+                </div>
+                <div style="font-size: 18px; opacity: 0.8;">
+                    Điểm số sẽ được cập nhật sau khi giáo viên chấm điểm
+                </div>
+            `;
+            } else {
+                // Format điểm: loại bỏ .0 khi không cần
+                const score = parseFloat(attempt.score || 0);
+                const total = parseFloat(attempt.total_points || 0);
+                const displayScore = score % 1 === 0 ? score.toString() : score.toFixed(1);
+                const displayTotal = total % 1 === 0 ? total.toString() : total.toFixed(1);
+
+                document.getElementById('scoreDisplay').textContent = `${displayScore}/${displayTotal}`;
+            }
+
+            document.getElementById('examDate').textContent = new Date(attempt.start_time).toLocaleDateString('vi-VN');
+
+            const startTime = new Date(attempt.start_time);
+            const endTime = new Date(attempt.end_time || new Date());
+            const timeTaken = Math.floor((endTime - startTime) / 1000 / 60);
+            document.getElementById('timeTaken').textContent = `${timeTaken} phút`;
+
+            // Cập nhật stats
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('unansweredCount').textContent = unansweredCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
+
+            // Cập nhật label "Đang chấm" thành "Đã chấm" nếu đã chấm xong
+            const pendingLabel = document.getElementById('pendingLabel');
+            if (pendingLabel) {
+                if (attempt.is_fully_graded) {
+                    pendingLabel.textContent = 'Đã chấm';
+                } else {
+                    pendingLabel.textContent = 'Đang chấm';
+                }
+            }
+
+            // Tính tỷ lệ đạt:
+            // - Trắc nghiệm: % câu trả lời đúng
+            // - Tự luận: % điểm đạt được sau khi giáo viên chấm
+            let totalMultipleChoiceQuestions = 0;
+            let correctMultipleChoiceCount = 0;
+            let totalEssayPoints = 0;
+            let earnedEssayPoints = 0;
+
+            results.forEach((r) => {
+                const hasAnswer = (r.option_id !== null && r.option_id !== undefined) ||
+                    (r.student_answer !== null && r.student_answer !== undefined && r.student_answer !== '');
+
+                // Trắc nghiệm (SingleChoice, MultipleChoice)
+                if (r.question_type === 'SingleChoice' || r.question_type === 'MultipleChoice') {
+                    totalMultipleChoiceQuestions++;
+                    if (hasAnswer && r.is_correct === 1) {
+                        correctMultipleChoiceCount++;
+                    }
+                }
+                // Tự luận (Essay, FillInBlank) - chỉ tính khi đã được chấm
+                else if ((r.question_type === 'Essay' || r.question_type === 'FillInBlank') &&
+                    r.teacher_score !== null && r.teacher_score !== undefined) {
+                    const questionPoints = parseFloat(r.points) || 0;
+                    const earnedPoints = parseFloat(r.teacher_score) || 0;
+                    totalEssayPoints += questionPoints;
+                    earnedEssayPoints += earnedPoints;
+                }
+            });
+
+            // Tính tỷ lệ đạt
+            let percentScore = 0;
+            let percentLabel = 'Tỷ lệ đạt';
+
+            if (totalMultipleChoiceQuestions > 0 && totalEssayPoints > 0) {
+                // Có cả trắc nghiệm và tự luận: tính tổng hợp dựa trên điểm số
+                const multipleChoicePercent = totalMultipleChoiceQuestions > 0
+                    ? (correctMultipleChoiceCount / totalMultipleChoiceQuestions) * 100
+                    : 0;
+
+                const essayPercent = totalEssayPoints > 0
+                    ? (earnedEssayPoints / totalEssayPoints) * 100
+                    : 0;
+
+                // Tính trung bình có trọng số dựa trên số câu hỏi
+                const totalQuestions = totalMultipleChoiceQuestions + (totalEssayPoints > 0 ? 1 : 0);
+                percentScore = Math.round((multipleChoicePercent * totalMultipleChoiceQuestions + essayPercent * (totalEssayPoints > 0 ? 1 : 0)) / totalQuestions);
+            } else if (totalMultipleChoiceQuestions > 0) {
+                // Chỉ có trắc nghiệm: tính % câu đúng
+                percentScore = totalMultipleChoiceQuestions > 0
+                    ? Math.round((correctMultipleChoiceCount / totalMultipleChoiceQuestions) * 100)
+                    : 0;
+                percentLabel = 'Tỷ lệ đạt (trắc nghiệm)';
+            } else if (totalEssayPoints > 0) {
+                // Chỉ có tự luận: tính % điểm đạt được
+                percentScore = totalEssayPoints > 0
+                    ? Math.round((earnedEssayPoints / totalEssayPoints) * 100)
+                    : 0;
+                percentLabel = 'Tỷ lệ đạt (tự luận)';
+            }
+
+            // Nếu có câu hỏi đang chờ chấm, thêm "(tạm tính)"
+            if (hasPendingQuestions && !attempt.is_fully_graded) {
+                percentLabel += ' (tạm tính)';
+            }
+
+            // Thêm card phần trăm
+            const summaryGrid = document.getElementById('summaryGrid');
+            const percentCard = document.createElement('div');
+            percentCard.className = 'summary-card';
+            percentCard.innerHTML = `
+            <div class="summary-number" style="color: #667eea;">${percentScore}%</div>
+            <div class="summary-label">${percentLabel}</div>
+        `;
+            summaryGrid.appendChild(percentCard);
+
+            // Render chi tiết câu hỏi
+            const container = document.getElementById('questionResults');
+            container.innerHTML = results.map((r, index) => {
+                const hasAnswer = (r.option_id !== null && r.option_id !== undefined) ||
+                    (r.student_answer !== null && r.student_answer !== undefined && r.student_answer !== '');
+
+                const isPendingGrade = (r.question_type === 'Essay' || r.question_type === 'FillInBlank') && hasAnswer;
+
+                let statusClass = 'unanswered';
+                let statusIcon = '⚠️';
+                let statusText = 'Chưa trả lời';
+
+                // QUAN TRỌNG: Chỉ hiển thị "Đang chờ chấm" nếu chưa được chấm hoàn toàn
+                if (isPendingGrade && !attempt.is_fully_graded) {
+                    statusClass = 'pending';
+                    statusIcon = '⏳';
+                    statusText = 'Đang chờ chấm';
+                } else if (isPendingGrade && attempt.is_fully_graded) {
+                    // Đã được chấm nhưng cần kiểm tra xem có điểm không
+                    // Nếu có teacher_score thì hiển thị đã chấm
+                    statusClass = 'correct';
+                    statusIcon = '✅';
+                    statusText = 'Đã chấm';
+                } else if (hasAnswer) {
+                    if (r.is_correct === 1) {
+                        statusClass = 'correct';
+                        statusIcon = '✅';
+                        statusText = 'Đúng';
+                    } else {
+                        statusClass = 'incorrect';
+                        statusIcon = '❌';
+                        statusText = 'Sai';
+                    }
+                }
+
+                let answerHTML = '';
+
+                // Câu trắc nghiệm
+                if (r.options && r.options.length > 0) {
+                    answerHTML = '<div style="margin-top: 15px;">';
+
+                    r.options.forEach((opt, i) => {
+                        const letter = String.fromCharCode(65 + i);
+                        let optionClass = 'option-item';
+                        let label = '';
+
+                        if (opt.is_correct === 1 || opt.is_correct === true) {
+                            optionClass += ' correct-answer';
+                            label = ' ✅ (Đáp án đúng)';
+                        }
+
+                        let isStudentChoice = false;
+                        if (r.question_type === 'SingleChoice' && r.option_id) {
+                            isStudentChoice = opt.option_id === r.option_id;
+                        } else if (r.question_type === 'MultipleChoice' && r.student_answer) {
+                            const studentAnswers = r.student_answer.split(',').map(a => parseInt(a.trim()));
+                            isStudentChoice = studentAnswers.includes(opt.option_id);
+                        }
+
+                        if (isStudentChoice) {
+                            if (opt.is_correct === 1 || opt.is_correct === true) {
+                                optionClass += ' student-correct';
+                                label = ' ✅ (Bạn chọn - Đúng)';
+                            } else {
+                                optionClass += ' student-wrong';
+                                label = ' ❌ (Bạn chọn - Sai)';
+                            }
+                        }
+
+                        answerHTML += `
+                        <div class="${optionClass}">
+                            ${letter}. ${opt.option_content}${label}
+                        </div>
+                    `;
+                    });
+
+                    answerHTML += '</div>';
+                }
+                // Câu tự luận / điền khẩu
+                else {
+                    answerHTML = `
+                    <div class="answer-section">
+                        <div class="answer-label">Câu trả lời của bạn:</div>
+                        <div class="essay-answer">
+                            ${r.student_answer || '<em style="color: #cbd5e0;">Chưa trả lời</em>'}
+                        </div>
+                        ${isPendingGrade && !attempt.is_fully_graded ? `
+                            <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; color: #1976d2;">
+                                <strong>⏳ Đang chờ giáo viên chấm điểm</strong>
+                            </div>
+                        ` : ''}
+                        ${r.teacher_score !== null && r.teacher_score !== undefined ? `
+                            <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%); border-radius: 8px; border-left: 4px solid #26de81;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <strong style="color: #2d3748;">✅ Điểm giáo viên chấm:</strong>
+                                    <span style="font-size: 20px; font-weight: 600; color: #26de81;">
+                                        ${parseFloat(r.teacher_score).toFixed(1)}/${parseFloat(r.points).toFixed(1)} điểm
+                                    </span>
+                                </div>
+                                ${r.teacher_comment ? `
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #26de81;">
+                                        <strong style="color: #2d3748;">💬 Nhận xét:</strong>
+                                        <div style="margin-top: 5px; color: #2d3748;">${r.teacher_comment}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                        ${r.correct_answer_text && !isPendingGrade ? `
+                            <div style="margin-top: 15px;">
+                                <div class="answer-label">Đáp án tham khảo:</div>
+                                <div class="essay-answer" style="border-color: #26de81;">
+                                    ${r.correct_answer_text}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                }
+
+                return `
+                <div class="question-result ${statusClass}">
+                    <div class="question-title">
+                        <span>
+                            <span class="status-icon">${statusIcon}</span>
+                            <span>Câu ${index + 1}: ${r.question_content}</span>
+                        </span>
+                        <span style="margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            ${r.teacher_score !== null && r.teacher_score !== undefined ? `
+                                <span style="color: #26de81; font-weight: 600; font-size: 14px;">
+                                    ${parseFloat(r.teacher_score).toFixed(1)}/${parseFloat(r.points).toFixed(1)} điểm
+                                </span>
+                            ` : `
+                                <span style="color: #667eea; font-weight: 600; font-size: 14px;">${parseFloat(r.points).toFixed(1)} điểm</span>
+                            `}
+                            <span style="color: ${statusClass === 'correct' ? '#26de81' : statusClass === 'incorrect' ? '#ff4757' : statusClass === 'pending' ? '#4299e1' : '#ffa502'}; font-size: 13px; white-space: nowrap;">
+                                ${statusText}
+                            </span>
+                        </span>
+                    </div>
+                    
+                    ${answerHTML}
+                    
+                    ${r.is_correct === 0 && r.suggested_materials && r.suggested_materials.length > 0 ? `
+                        <div class="suggested-materials-container">
+                            <div class="suggested-materials-header">
+                                <span class="materials-icon">📚</span>
+                                <strong>Tài liệu gợi ý để ôn lại:</strong>
+                            </div>
+                            <div class="suggested-materials-list">
+                                ${r.suggested_materials.map(material => {
+                    const fileIcon = getFileIcon(material.file_type);
+                    const token = localStorage.getItem('token');
+                    const downloadUrl = `/api/teacher/materials/${material.material_id}/download${token ? '?token=' + encodeURIComponent(token) : ''}`;
+                    return `
+                                        <a href="${downloadUrl}" 
+                                           class="material-link"
+                                           onclick="event.preventDefault(); downloadMaterial(${material.material_id}, '${material.title.replace(/'/g, "\\'")}'); return false;">
+                                            <span class="material-icon">${fileIcon}</span>
+                                            <div class="material-info">
+                                                <div class="material-title">${material.title}</div>
+                                                ${material.description ? `<div class="material-description">${material.description}</div>` : ''}
+                                            </div>
+                                            <span class="download-icon">📥</span>
+                                        </a>
+                                    `;
+                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Helper: Lấy icon theo loại file
+        function getFileIcon(fileType) {
+            const icons = {
+                '.pdf': '📄',
+                '.doc': '📝',
+                '.docx': '📝',
+                '.xls': '📊',
+                '.xlsx': '📊',
+                '.ppt': '📽️',
+                '.pptx': '📽️',
+                '.txt': '📄'
+            };
+            return icons[fileType?.toLowerCase()] || '📄';
+        }
+
+        // Download tài liệu với token
+        async function downloadMaterial(materialId, materialTitle) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('❌ Vui lòng đăng nhập lại!');
+                window.location.href = './login.html';
+                return;
+            }
+
+            try {
+                // Sử dụng window.CONFIG để build URL đúng
+                let apiUrl = `/api/teacher/materials/${materialId}/download`;
+                if (window.CONFIG?.API_BASE_URL) {
+                    const baseUrl = window.CONFIG.API_BASE_URL.endsWith('/')
+                        ? window.CONFIG.API_BASE_URL.slice(0, -1)
+                        : window.CONFIG.API_BASE_URL;
+                    apiUrl = `${baseUrl}${apiUrl}`;
+                }
+
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    // Kiểm tra xem response có phải là JSON không
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Lỗi khi tải tài liệu');
+                    } else {
+                        // Nếu không phải JSON, có thể là HTML error page
+                        throw new Error(`Lỗi ${response.status}: ${response.statusText}`);
+                    }
+                }
+
+                // Lấy tên file từ header hoặc URL
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = materialTitle || 'material';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+
+                // Tạo blob và download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('❌ Error downloading material:', error);
+                alert(`❌ ${error.message}`);
+            }
+        }
+    </script>
+</body>
+
+</html>

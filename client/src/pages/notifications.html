@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo - Edexis</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-light: rgba(255, 255, 255, 0.9);
+      --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--primary-gradient);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .navbar {
+      backdrop-filter: blur(20px);
+      background: var(--glass-bg);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 0;
+    }
+    .notification-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: var(--shadow-soft);
+    }
+    .notification-container h2 {
+      font-weight: 700;
+      color: white;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .notification-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+    .notification-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+    .notification-card.unread {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .notification-card i {
+      color: #f093fb;
+    }
+    @media (max-width: 576px) {
+      .notification-container {
+        padding: 2rem;
+      }
+      .notification-container h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand text-light" href="index.html"><i class="fas fa-graduation-cap me-2"></i>Edexis</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link text-light" href="index.html">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="student_dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="logout">Đăng xuất</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Notification Section -->
+  <section class="notification-container mt-5" data-aos="fade-up">
+    <h2><i class="fas fa-bell me-2"></i>Thông báo</h2>
+    <div id="notificationList">
+      <!-- Lấy động từ API hoặc Socket.io -->
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <script src="/client/public/js/config.js"></script>
+  <script src="/client/public/js/api.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+    // Sử dụng window.location.origin cho Socket.IO
+    const socket = io(window.location.origin);
+
+    socket.on('notification', (data) => {
+      addNotification(data);
+    });
+
+    async function loadNotifications() {
+      try {
+        // Sử dụng relative URL
+        const response = await fetch('/api/notifications');
+        const notifications = await response.json();
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = '';
+        notifications.forEach(n => {
+          const div = document.createElement('div');
+          div.className = `notification-card ${n.is_read ? '' : 'unread'}`;
+          div.innerHTML = `
+            <p><i class="fas fa-bell me-2"></i>${n.content}</p>
+            <small class="text-light">${new Date(n.created_at).toLocaleString()}</small>
+          `;
+          notificationList.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Lỗi tải thông báo:', err);
+      }
+    }
+
+    function addNotification(data) {
+      const notificationList = document.getElementById('notificationList');
+      const div = document.createElement('div');
+      div.className = 'notification-card unread';
+      div.innerHTML = `
+        <p><i class="fas fa-bell me-2"></i>${data.content}</p>
+        <small class="text-light">${new Date().toLocaleString()}</small>
+      `;
+      notificationList.prepend(div);
+    }
+
+    // loadNotifications(); // Gỡ comment khi có API
+  </script>
+</body>
+</html>

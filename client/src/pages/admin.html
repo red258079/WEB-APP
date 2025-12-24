@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hệ Thống Thi Trực Tuyến</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <link rel="icon" type="image/png" href="/client/public/images/edu.png">
+    <link href="/client/public/css/admin.css" rel="stylesheet">
+    <link href="/client/public/css/scroll-to-top.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="bi bi-journal-check"></i> Exam System</h4>
+            <small>Quản trị viên</small>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-section="dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="users">
+                    <i class="bi bi-people"></i> Người dùng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="exams">
+                    <i class="bi bi-file-text"></i> Kỳ thi
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="questions">
+                    <i class="bi bi-question-circle"></i> Ngân hàng câu hỏi
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="monitor-cheating">
+                    <i class="bi bi-exclamation-triangle"></i> Giám sát gian lận
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="subjects">
+                    <i class="bi bi-book"></i> Môn học
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="reports">
+                    <i class="bi bi-graph-up"></i> Báo cáo & Thống kê
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="settings">
+                    <i class="bi bi-gear"></i> Cài đặt
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="btn btn-link d-md-none" id="toggleSidebar">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2" id="pageTitle">Dashboard Tổng Quan</h5>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary" id="toggleDarkMode"
+                    title="Chuyển đổi giao diện sáng/tối">
+                    <i class="bi bi-moon-fill" id="darkModeIcon"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="exportReportDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-download"></i> Xuất báo cáo
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportReportDropdown">
+                        <li>
+                            <a class="dropdown-item" href="#" id="headerExportExcel">
+                                <i class="bi bi-file-earmark-excel text-success"></i> Xuất Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="headerExportPDF">
+                                <i class="bi bi-file-earmark-pdf text-danger"></i> Xuất PDF
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="headerPrintReport">
+                                <i class="bi bi-printer text-primary"></i> In báo cáo
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="goToReportsSection">
+                                <i class="bi bi-graph-up"></i> Xem báo cáo chi tiết
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="user-avatar">AD</div>
+            </div>
+        </div>
+
+        <div id="dashboard-section" class="content-section active">
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon primary-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="stat-label">Tổng Sinh Viên</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-change text-success">
+                            <i class="bi bi-arrow-up"></i> +12% so với tháng trước
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon success-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div class="stat-label">Tổng Giáo Viên</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-change text-success">
+                            <i class="bi bi-arrow-up"></i> +5% so với tháng trước
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon warning-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div class="stat-label">Kỳ Thi Đang Diễn Ra</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-change text-success">
+                            <i class="bi bi-arrow-up"></i> +8% so với tháng trước
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon info-icon">
+                            <i class="bi bi-patch-question"></i>
+                        </div>
+                        <div class="stat-label">Câu Hỏi Trong Hệ Thống</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-change text-success">
+                            <i class="bi bi-plus"></i> +156 câu hỏi mới
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-8">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Thống Kê Người Dùng Mới</h6>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="userChartType" style="width: auto;">
+                                    <option value="line">Đường</option>
+                                    <option value="bar">Cột</option>
+                                    <option value="area">Vùng</option>
+                                </select>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary active" id="studentBtn">Sinh
+                                        viên</button>
+                                    <button type="button" class="btn btn-outline-primary" id="teacherBtn">Giáo
+                                        viên</button>
+                                </div>
+                            </div>
+                        </div>
+                        <canvas id="userChart" height="80"></canvas>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Tỷ Lệ Hoàn Thành Bài Thi</h6>
+                            <select class="form-select form-select-sm" id="completionChartType" style="width: auto;">
+                                <option value="doughnut">Doughnut</option>
+                                <option value="pie">Tròn</option>
+                                <option value="bar">Cột</option>
+                            </select>
+                        </div>
+                        <canvas id="completionChart"></canvas>
+                        <div class="mt-3" id="completionStats">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-circle-fill text-success"></i> Hoàn thành</span>
+                                <strong id="completedPercent">0%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-circle-fill text-warning"></i> Đang làm</span>
+                                <strong id="inProgressPercent">0%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="bi bi-circle-fill text-danger"></i> Bỏ dở</span>
+                                <strong id="abandonedPercent">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Phân Bố Điểm Số</h6>
+                            <select class="form-select form-select-sm" id="scoreChartType" style="width: auto;">
+                                <option value="bar">Cột</option>
+                                <option value="line">Đường</option>
+                                <option value="pie">Tròn</option>
+                            </select>
+                        </div>
+                        <canvas id="scoreChart" height="100"></canvas>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Số Lượng Kỳ Thi Theo Tháng</h6>
+                            <select class="form-select form-select-sm" id="examChartType" style="width: auto;">
+                                <option value="bar">Cột</option>
+                                <option value="line">Đường</option>
+                                <option value="area">Vùng</option>
+                            </select>
+                        </div>
+                        <canvas id="examChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tiện ích Dashboard -->
+            <div class="row g-4 mb-4">
+                <!-- Quick Actions -->
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Hành Động Nhanh</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm"
+                                onclick="handleQuickAction('users', 'addUserBtn')">
+                                <i class="bi bi-person-plus"></i> Thêm người dùng
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm"
+                                onclick="handleQuickAction('exams', 'addExamBtn')">
+                                <i class="bi bi-file-earmark-plus"></i> Tạo kỳ thi mới
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm"
+                                onclick="handleQuickAction('questions', 'addQuestionBtn')">
+                                <i class="bi bi-question-circle"></i> Thêm câu hỏi
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm"
+                                onclick="handleQuickAction('subjects', 'addSubjectBtn')">
+                                <i class="bi bi-book"></i> Thêm môn học
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="switchSection('reports')">
+                                <i class="bi bi-graph-up"></i> Xem báo cáo
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="switchSection('monitor-cheating')">
+                                <i class="bi bi-shield-exclamation"></i> Giám sát gian lận
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hoạt động gần đây -->
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Hoạt Động Gần Đây</h6>
+                            <button class="btn btn-link btn-sm p-0" onclick="loadRecentActivities()" title="Làm mới">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <div id="recentActivitiesList" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted py-3">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Đang tải...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông báo quan trọng & Liên kết nhanh -->
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Thông Báo & Liên Kết</h6>
+                        <div id="importantNotifications">
+                            <div class="alert alert-info alert-sm mb-2">
+                                <i class="bi bi-info-circle"></i> <small>Hệ thống đang hoạt động bình thường</small>
+                            </div>
+                            <div class="alert alert-warning alert-sm mb-2" id="cheatingAlert" style="display: none;">
+                                <i class="bi bi-exclamation-triangle"></i> <small>Có cảnh báo gian lận cần xem
+                                    xét</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-link btn-sm text-start p-2" onclick="switchSection('users')">
+                                <i class="bi bi-people"></i> Quản lý người dùng
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-start p-2" onclick="switchSection('exams')">
+                                <i class="bi bi-file-earmark-text"></i> Quản lý kỳ thi
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-start p-2" onclick="switchSection('questions')">
+                                <i class="bi bi-patch-question"></i> Ngân hàng câu hỏi
+                            </a>
+                            <a href="#" class="btn btn-link btn-sm text-start p-2" onclick="switchSection('reports')">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo & Thống kê
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="users-section" class="content-section">
+            <div class="table-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="chart-title mb-0">Quản Lý Người Dùng</h6>
+                    <button class="btn btn-primary" id="addUserBtn">
+                        <i class="bi bi-plus-lg"></i> Thêm người dùng
+                    </button>
+                </div>
+
+                <div class="row mb-3 g-2">
+                    <div class="col-12 col-md-6">
+                        <input type="text" class="form-control" id="userSearch"
+                            placeholder="Tìm kiếm theo tên, email...">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select class="form-select" id="userRoleFilter">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="Student">Sinh viên</option>
+                            <option value="Teacher">Giáo viên</option>
+                            <option value="Admin">Quản trị viên</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select class="form-select" id="userStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Card view for mobile -->
+                <div id="usersCardView" class="d-md-none row g-3 mb-4">
+                    <!-- Cards will be rendered here -->
+                </div>
+
+                <!-- Table view for desktop -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Họ và Tên</th>
+                                <th>Email</th>
+                                <th>Vai trò</th>
+                                <th>Ngày đăng ký</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div id="exams-section" class="content-section">
+            <div class="table-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="chart-title mb-0">Quản Lý Kỳ Thi</h6>
+                    <button class="btn btn-primary" id="addExamBtn">
+                        <i class="bi bi-plus-lg"></i> Tạo kỳ thi mới
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên Kỳ Thi</th>
+                                <th>Môn Học</th>
+                                <th>Giáo Viên</th>
+                                <th>Thời gian</th>
+                                <th>Số SV</th>
+                                <th>Trạng Thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="monitor-cheating-section" class="content-section">
+            <!-- Thống kê tổng quan -->
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon danger-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="stat-label">Tổng vi phạm</div>
+                        <div class="stat-value" id="totalViolations">0</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon warning-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="stat-label">Học sinh vi phạm</div>
+                        <div class="stat-value" id="violatingStudents">0</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon info-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div class="stat-label">Bài thi bị ảnh hưởng</div>
+                        <div class="stat-value" id="affectedExams">0</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon danger-icon">
+                            <i class="bi bi-ban"></i>
+                        </div>
+                        <div class="stat-label">Học sinh bị cấm</div>
+                        <div class="stat-value" id="bannedStudents">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biểu đồ và Top vi phạm -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-8">
+                    <div class="chart-card">
+                        <h6 class="chart-title">Thống kê vi phạm theo loại</h6>
+                        <canvas id="cheatingChart" height="100"></canvas>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Top 5 học sinh vi phạm</h6>
+                        <ul id="topViolators" class="list-group list-group-flush"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top bài thi vi phạm -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Top 5 bài thi có nhiều vi phạm</h6>
+                        <div id="topExamsList" class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Bài thi</th>
+                                        <th>Lớp</th>
+                                        <th>Số vi phạm</th>
+                                        <th>Số học sinh vi phạm</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topExamsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảng log gian lận -->
+            <div class="table-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="chart-title mb-0">📋 Log gian lận chi tiết</h6>
+                    <div>
+                        <button class="btn btn-secondary me-2" id="refreshCheatingBtn">
+                            <i class="bi bi-arrow-clockwise"></i> Làm mới
+                        </button>
+                        <button class="btn btn-primary" id="exportCheatingCsv">
+                            <i class="bi bi-download"></i> Xuất CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Lọc theo bài thi</label>
+                        <select class="form-select" id="examFilter">
+                            <option value="">Tất cả kỳ thi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Lọc theo học sinh</label>
+                        <select class="form-select" id="studentFilter">
+                            <option value="">Tất cả học sinh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Loại vi phạm</label>
+                        <select class="form-select" id="eventTypeFilter">
+                            <option value="">Tất cả loại</option>
+                            <option value="TabSwitch">🚫 Chuyển tab</option>
+                            <option value="CopyPaste">📋 Copy/Paste</option>
+                            <option value="WebcamSuspicious">📷 Webcam đáng ngờ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Từ ngày</label>
+                        <input type="date" class="form-select" id="startDateFilter">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Đến ngày</label>
+                        <input type="date" class="form-select" id="endDateFilter">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Học sinh</th>
+                                <th>Bài thi</th>
+                                <th>Giáo viên</th>
+                                <th>Lớp</th>
+                                <th>Loại vi phạm</th>
+                                <th>Chi tiết</th>
+                                <th>Thời gian</th>
+                                <th>Video</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cheatingTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center">⏳ Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination for cheating logs -->
+                <nav class="mt-4" id="cheatingLogsPagination"></nav>
+            </div>
+        </div>
+
+        <!-- Cập nhật questions-section -->
+        <div id="questions-section" class="content-section">
+            <div class="table-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="chart-title mb-0">Ngân Hàng Câu Hỏi</h6>
+                    <div>
+                        <a class="btn btn-outline-primary me-2" href="/sample_questions.xlsx" download>
+                            <i class="bi bi-download"></i> Tải file mẫu
+                        </a>
+                        <button class="btn btn-warning me-2" onclick="removeDuplicateQuestions()"
+                            style="background: #f59e0b; color: white; border: none;">
+                            <i class="bi bi-trash"></i> Xóa câu hỏi trùng
+                        </button>
+                        <button class="btn btn-primary" id="addQuestionBtn">
+                            <i class="bi bi-plus-lg"></i> Thêm câu hỏi
+                        </button>
+                        <button class="btn btn-primary" id="importQuestionBtn">
+                            <i class="bi bi-upload"></i> Import Excel/CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label small">Tìm kiếm</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="questionSearchInput"
+                                placeholder="Tìm kiếm câu hỏi...">
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadQuestionsData(1)">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Môn học</label>
+                        <select class="form-select" id="questionSubjectFilter">
+                            <option value="all">Tất cả</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Mức độ</label>
+                        <select class="form-select" id="questionDifficultyFilter">
+                            <option value="all">Tất cả</option>
+                            <option value="Easy">Dễ</option>
+                            <option value="Medium">Trung bình</option>
+                            <option value="Hard">Khó</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Loại câu hỏi</label>
+                        <select class="form-select" id="questionTypeFilter">
+                            <option value="all">Tất cả</option>
+                            <option value="Multiple Choice">Trắc nghiệm</option>
+                            <option value="True/False">Đúng/Sai</option>
+                            <option value="Short Answer">Tự luận ngắn</option>
+                            <option value="Essay">Tự luận</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" onclick="loadQuestionsData(1)">
+                            <i class="bi bi-arrow-clockwise"></i> Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">ID</th>
+                                <th>Nội dung câu hỏi</th>
+                                <th>Môn học</th>
+                                <th>Mức độ</th>
+                                <th>Loại</th>
+                                <th>Tỷ lệ đúng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questionsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4" id="questionsPagination"></nav>
+            </div>
+        </div>
+
+        <!-- Modal import câu hỏi -->
+        <div class="modal fade" id="importQuestionModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import Câu Hỏi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="importQuestionForm">
+                            <div class="mb-3">
+                                <label class="form-label">Chọn kỳ thi (tùy chọn)</label>
+                                <select class="form-select" id="importExamId">
+                                    <option value="">Không chọn kỳ thi</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tải lên file Excel/CSV</label>
+                                <input type="file" class="form-control" id="importFile" accept=".xlsx,.csv" required>
+                            </div>
+                        </form>
+                        <div id="previewQuestions" class="mt-3"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveImportBtn">Lưu</button>
+                        <button type="button" class="btn btn-info" id="previewImportBtn">Xem trước</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal xem chi tiết câu hỏi -->
+        <div class="modal fade" id="viewQuestionModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-question-circle"></i> Chi tiết câu hỏi
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="questionDetailContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal webcam -->
+        <div class="modal fade" id="webcamModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Webcam của học sinh</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <video id="webcamStream" autoplay style="width: 100%;"></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="subjects-section" class="content-section">
+            <!-- Danh sách môn học (mặc định) -->
+            <div id="subjectsList">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-primary mb-3" id="addSubjectBtn">Thêm môn học</button>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên môn học</th>
+                                        <th>Số câu hỏi</th>
+                                        <th>Số kỳ thi</th>
+                                        <th>Số lớp</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subjectsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Chi tiết môn học (hiển thị khi bấm Xem chi tiết) -->
+            <div id="subjectDetail" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title">Chi tiết môn học: <span id="subjectNameDetail"></span></h5>
+                            <button class="btn btn-secondary" id="backToSubjectsBtn">Quay lại</button>
+                        </div>
+                        <div class="mb-3">
+                            <p>Số lượng sinh viên: <strong id="studentCount">0</strong></p>
+                            <p>Giáo viên chủ nhiệm: <strong id="teacherName">Chưa có</strong></p>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="studentSearch"
+                                placeholder="Tìm kiếm sinh viên...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="studentListTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Họ tên</th>
+                                        <th>Email</th>
+                                        <th class="sortable" data-sort="avg_score" data-order="desc">Điểm trung bình <i
+                                                class="bi bi-sort-down"></i></th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentListTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <p>Thống kê điểm:</p>
+                            <ul>
+                                <li>Điểm trung bình môn: <strong id="avgScore">0</strong></li>
+                                <li>Điểm cao nhất: <strong id="maxScore">0</strong></li>
+                                <li>Điểm thấp nhất: <strong id="minScore">0</strong></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary mt-3" id="exportScoresBtn">Xuất điểm (CSV)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="reports-section" class="content-section">
+            <!-- Bộ lọc và nút xuất báo cáo -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label small">Khoảng thời gian</label>
+                    <select class="form-select" id="reportPeriod">
+                        <option value="week">7 ngày qua</option>
+                        <option value="month" selected>30 ngày qua</option>
+                        <option value="quarter">3 tháng qua</option>
+                        <option value="year">1 năm qua</option>
+                        <option value="custom">Tùy chỉnh</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="customDateRange" style="display: none;">
+                    <label class="form-label small">Từ ngày</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="col-md-3" id="customDateRangeTo" style="display: none;">
+                    <label class="form-label small">Đến ngày</label>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Môn học</label>
+                    <select class="form-select" id="reportSubjectFilter">
+                        <option value="">Tất cả môn học</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button class="btn btn-primary" id="applyReportFilter">
+                        <i class="bi bi-funnel"></i> Áp dụng
+                    </button>
+                    <button class="btn btn-outline-secondary" id="resetReportFilter">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+                <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
+                    <button class="btn btn-outline-success" id="exportExcel">
+                        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                    </button>
+                    <button class="btn btn-outline-danger" id="exportPDF">
+                        <i class="bi bi-file-earmark-pdf"></i> Xuất PDF
+                    </button>
+                    <button class="btn btn-outline-primary" id="printReport">
+                        <i class="bi bi-printer"></i> In báo cáo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thống kê tổng quan -->
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon primary-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="stat-label">Tổng số bài thi</div>
+                        <div class="stat-value" id="reportTotalExams">0</div>
+                        <div class="stat-change text-muted">
+                            <small>Trong khoảng thời gian đã chọn</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon success-icon">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="stat-label">Tỷ lệ hoàn thành</div>
+                        <div class="stat-value" id="reportCompletionRate">0%</div>
+                        <div class="stat-change" id="reportCompletionTrend">
+                            <i class="bi bi-arrow-up"></i> +0%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon warning-icon">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="stat-label">Điểm trung bình</div>
+                        <div class="stat-value" id="reportAvgScore">0</div>
+                        <div class="stat-change" id="reportScoreTrend">
+                            <i class="bi bi-arrow-up"></i> +0
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon danger-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-label">Cảnh báo gian lận</div>
+                        <div class="stat-value" id="reportCheatingWarnings">0</div>
+                        <div class="stat-change text-danger">
+                            <small id="reportCheatingDetail">0 học sinh vi phạm</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biểu đồ phân tích -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-8">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">Xu hướng điểm số theo thời gian</h6>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary active" data-chart-type="line">
+                                    <i class="bi bi-graph-up"></i> Đường
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-chart-type="bar">
+                                    <i class="bi bi-bar-chart"></i> Cột
+                                </button>
+                            </div>
+                        </div>
+                        <canvas id="scoreTrendChart" height="80"></canvas>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Phân bố xếp loại</h6>
+                        <canvas id="gradeDistributionChart"></canvas>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-circle-fill" style="color: #198754;"></i> Xuất sắc (8-10)</span>
+                                <strong id="excellentPercent">0%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-circle-fill" style="color: #7f8ac5;"></i> Khá (6.5-8)</span>
+                                <strong id="goodPercent">0%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-circle-fill" style="color: #ffc107;"></i> Trung bình
+                                    (5-6.5)</span>
+                                <strong id="averagePercent">0%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="bi bi-circle-fill" style="color: #dc3545;"></i> Yếu (<5)< /span>
+                                        <strong id="weakPercent">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biểu đồ so sánh môn học -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="chart-card">
+                        <h6 class="chart-title">So sánh điểm trung bình theo môn học</h6>
+                        <canvas id="subjectComparisonChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top performers và cảnh báo -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Top 10 học sinh xuất sắc</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Họ tên</th>
+                                        <th>Điểm TB</th>
+                                        <th>Số bài thi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topStudentsTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">Đang tải...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <h6 class="chart-title mb-3">Học sinh cần hỗ trợ</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Họ tên</th>
+                                        <th>Điểm TB</th>
+                                        <th>Cảnh báo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="warningStudentsTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">Đang tải...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Báo cáo chi tiết theo kỳ thi -->
+            <div class="table-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="chart-title mb-0">Báo cáo chi tiết theo kỳ thi</h6>
+                    <div class="input-group" style="width: 300px;">
+                        <input type="text" class="form-control" id="searchExamReport" placeholder="Tìm kiếm kỳ thi...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="exam_name">
+                                    Kỳ thi <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable" data-sort="subject">
+                                    Môn học <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable" data-sort="student_count">
+                                    Số SV <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable" data-sort="completion_rate">
+                                    Hoàn thành <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable" data-sort="avg_score">
+                                    Điểm TB <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th>Cao nhất</th>
+                                <th>Thấp nhất</th>
+                                <th class="sortable" data-sort="cheating">
+                                    Cảnh báo <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examReportTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center" id="reportPagination">
+                        <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Lịch sử sửa điểm của giáo viên -->
+            <div class="table-card mt-4">
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                    <h6 class="chart-title mb-0">
+                        <i class="bi bi-pencil-square"></i> Lịch sử sửa điểm của giáo viên
+                    </h6>
+                    <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+                        <div class="d-flex gap-2 flex-grow-1">
+                            <input type="date" class="form-control form-control-sm" id="scoreHistoryStartDate">
+                            <input type="date" class="form-control form-control-sm" id="scoreHistoryEndDate">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-primary flex-grow-1 flex-md-grow-0"
+                                onclick="loadScoreHistory()">
+                                <i class="bi bi-search"></i> <span class="d-none d-md-inline">Tìm kiếm</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetScoreHistoryFilter()">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Giáo viên</th>
+                                <th>Học sinh</th>
+                                <th>Bài thi</th>
+                                <th>Môn học</th>
+                                <th>Câu hỏi</th>
+                                <th>Điểm cũ</th>
+                                <th>Điểm mới</th>
+                                <th>Tổng điểm cũ</th>
+                                <th>Tổng điểm mới</th>
+                                <th>Lý do</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreHistoryTableBody">
+                            <tr>
+                                <td colspan="11" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center" id="scoreHistoryPagination">
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Lịch sử khiếu nại của học sinh -->
+            <div class="table-card mt-4" id="complaints-history-section">
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                    <h6 class="chart-title mb-0">
+                        <i class="bi bi-exclamation-circle"></i> Lịch sử khiếu nại của học sinh
+                    </h6>
+                    <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+                        <select class="form-select form-select-sm" id="complaintStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Pending">Đang chờ</option>
+                            <option value="Resolved">Đã xử lý</option>
+                            <option value="Rejected">Từ chối</option>
+                        </select>
+                        <div class="d-flex gap-2 flex-grow-1">
+                            <input type="date" class="form-control form-control-sm" id="complaintHistoryStartDate">
+                            <input type="date" class="form-control form-control-sm" id="complaintHistoryEndDate">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-primary flex-grow-1 flex-md-grow-0"
+                                onclick="loadComplaintsHistory()">
+                                <i class="bi bi-search"></i> <span class="d-none d-md-inline">Tìm kiếm</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetComplaintHistoryFilter()">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Học sinh</th>
+                                <th>Bài thi</th>
+                                <th>Môn học</th>
+                                <th>Điểm</th>
+                                <th>Nội dung khiếu nại</th>
+                                <th>Trạng thái</th>
+                                <th>Phản hồi giáo viên</th>
+                                <th>Giáo viên</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsHistoryTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center" id="complaintsHistoryPagination">
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Báo cáo sử dụng AI -->
+            <div class="row g-4 mb-4 mt-4">
+                <div class="col-12">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="chart-title mb-0">
+                                <i class="bi bi-robot"></i> Báo cáo sử dụng AI
+                            </h6>
+                            <button class="btn btn-sm btn-outline-primary" onclick="loadAIUsageReport()"
+                                title="Làm mới">
+                                <i class="bi bi-arrow-clockwise"></i> Làm mới
+                            </button>
+                        </div>
+
+                        <!-- Thống kê tổng quan AI -->
+                        <div class="row g-3 mb-4" id="aiOverviewCards">
+                            <div class="col-xl-3 col-md-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon info-icon">
+                                        <i class="bi bi-cpu"></i>
+                                    </div>
+                                    <div class="stat-label">Tổng yêu cầu AI</div>
+                                    <div class="stat-value" id="aiTotalRequests">0</div>
+                                    <div class="stat-change" id="aiRequestTrend">
+                                        <i class="bi bi-arrow-up"></i> +0%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon primary-icon">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <div class="stat-label">Người dùng AI</div>
+                                    <div class="stat-value" id="aiTotalUsers">0</div>
+                                    <div class="stat-change text-muted">
+                                        <small>Người dùng đã sử dụng</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon success-icon">
+                                        <i class="bi bi-token"></i>
+                                    </div>
+                                    <div class="stat-label">Tổng Tokens</div>
+                                    <div class="stat-value" id="aiTotalTokens">0</div>
+                                    <div class="stat-change" id="aiTokenTrend">
+                                        <i class="bi bi-arrow-up"></i> +0%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon warning-icon">
+                                        <i class="bi bi-pie-chart"></i>
+                                    </div>
+                                    <div class="stat-label">Provider chính</div>
+                                    <div class="stat-value" id="aiMainProvider">-</div>
+                                    <div class="stat-change text-muted">
+                                        <small id="aiProviderDetail">Groq/Gemini/OpenAI</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phân bố theo Provider -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-xl-6">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Phân bố theo Provider</h6>
+                                    <canvas id="aiProviderChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Phân bố theo Loại Action</h6>
+                                    <canvas id="aiActionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Xu hướng sử dụng theo ngày -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Xu hướng sử dụng AI theo ngày</h6>
+                                    <div style="position: relative; height: 300px;">
+                                        <canvas id="aiDailyUsageChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top users sử dụng AI -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Top 20 người dùng sử dụng AI nhiều nhất</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Họ tên</th>
+                                                    <th>Email</th>
+                                                    <th>Vai trò</th>
+                                                    <th>Số yêu cầu</th>
+                                                    <th>Tổng Tokens</th>
+                                                    <th>Ngày sử dụng</th>
+                                                    <th>Providers</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="aiTopUsersTable">
+                                                <tr>
+                                                    <td colspan="8" class="text-center">Đang tải dữ liệu...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thống kê theo vai trò -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-xl-6">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Thống kê theo Vai trò</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Vai trò</th>
+                                                    <th>Số yêu cầu</th>
+                                                    <th>Tổng Tokens</th>
+                                                    <th>Số người dùng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="aiRoleStatsTable">
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Đang tải...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="chart-card">
+                                    <h6 class="chart-title mb-3">Chi tiết theo Provider</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Provider</th>
+                                                    <th>Yêu cầu</th>
+                                                    <th>Tokens</th>
+                                                    <th>Người dùng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="aiProviderStatsTable">
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Đang tải...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-section" class="content-section">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="table-card">
+                        <h6 class="chart-title mb-4">Cài Đặt Hệ Thống</h6>
+
+                        <!-- Tabs Navigation -->
+                        <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="exam-tab" data-bs-toggle="tab"
+                                    data-bs-target="#exam-settings" type="button">
+                                    <i class="bi bi-file-earmark-text"></i> Thi cử
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="antiCheat-tab" data-bs-toggle="tab"
+                                    data-bs-target="#antiCheat-settings" type="button">
+                                    <i class="bi bi-shield-check"></i> Chống gian lận
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="notification-tab" data-bs-toggle="tab"
+                                    data-bs-target="#notification-settings" type="button">
+                                    <i class="bi bi-bell"></i> Thông báo
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="security-tab" data-bs-toggle="tab"
+                                    data-bs-target="#security-settings" type="button">
+                                    <i class="bi bi-lock"></i> Bảo mật
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="display-tab" data-bs-toggle="tab"
+                                    data-bs-target="#display-settings" type="button">
+                                    <i class="bi bi-palette"></i> Giao diện
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="email-tab" data-bs-toggle="tab"
+                                    data-bs-target="#email-settings" type="button">
+                                    <i class="bi bi-envelope"></i> Email & SMTP
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="user-tab" data-bs-toggle="tab"
+                                    data-bs-target="#user-settings" type="button">
+                                    <i class="bi bi-people"></i> Người dùng
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="system-tab" data-bs-toggle="tab"
+                                    data-bs-target="#system-settings" type="button">
+                                    <i class="bi bi-gear"></i> Hệ thống
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="backup-tab" data-bs-toggle="tab"
+                                    data-bs-target="#backup-settings" type="button">
+                                    <i class="bi bi-database"></i> Sao lưu & Khôi phục
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="logs-tab" data-bs-toggle="tab"
+                                    data-bs-target="#logs-settings" type="button">
+                                    <i class="bi bi-file-text"></i> Logs & Giám sát
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="api-tab" data-bs-toggle="tab"
+                                    data-bs-target="#api-settings" type="button">
+                                    <i class="bi bi-code-slash"></i> API & Tích hợp
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="performance-tab" data-bs-toggle="tab"
+                                    data-bs-target="#performance-settings" type="button">
+                                    <i class="bi bi-speedometer"></i> Hiệu suất
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tabs Content -->
+                    <div class="tab-content" id="settingsTabContent">
+                        <!-- Exam Settings Tab -->
+                        <div class="tab-pane fade show active" id="exam-settings" role="tabpanel">
+                            <form id="examSettingsForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian làm bài mặc định (phút)</label>
+                                    <input type="number" class="form-control" id="defaultDuration" min="1" required>
+                                    <small class="text-muted">Thời gian mặc định cho các kỳ thi mới</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Điểm đạt mặc định</label>
+                                    <input type="number" class="form-control" id="defaultPassingScore" step="0.1"
+                                        min="0" max="10" required>
+                                    <small class="text-muted">Điểm tối thiểu để đạt (thang điểm 10)</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableAutoSubmit">
+                                    <label class="form-check-label" for="enableAutoSubmit">
+                                        Tự động nộp bài khi hết thời gian
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableReviewBeforeSubmit">
+                                    <label class="form-check-label" for="enableReviewBeforeSubmit">
+                                        Cho phép xem lại trước khi nộp bài
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Anti-Cheat Settings Tab -->
+                        <div class="tab-pane fade" id="antiCheat-settings" role="tabpanel">
+                            <form id="antiCheatSettingsForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Số cảnh báo tối đa</label>
+                                    <input type="number" class="form-control" id="maxWarnings" min="1" max="10"
+                                        required>
+                                    <small class="text-muted">Số lần cảnh báo trước khi tự động nộp bài</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableWebcamMonitoring">
+                                    <label class="form-check-label" for="enableWebcamMonitoring">
+                                        Bật giám sát webcam
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableTabSwitchDetection">
+                                    <label class="form-check-label" for="enableTabSwitchDetection">
+                                        Phát hiện chuyển tab
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableCopyPasteDetection">
+                                    <label class="form-check-label" for="enableCopyPasteDetection">
+                                        Phát hiện copy/paste
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Notification Settings Tab -->
+                        <div class="tab-pane fade" id="notification-settings" role="tabpanel">
+                            <form id="notificationSettingsForm">
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableEmail">
+                                    <label class="form-check-label" for="enableEmail">
+                                        Gửi thông báo qua email
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyExamStart">
+                                    <label class="form-check-label" for="notifyExamStart">
+                                        Thông báo khi kỳ thi bắt đầu
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyExamEnd">
+                                    <label class="form-check-label" for="notifyExamEnd">
+                                        Thông báo khi kỳ thi kết thúc
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyScoreAvailable">
+                                    <label class="form-check-label" for="notifyScoreAvailable">
+                                        Thông báo khi điểm số có sẵn
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings Tab -->
+                        <div class="tab-pane fade" id="security-settings" role="tabpanel">
+                            <form id="securitySettingsForm">
+                                <h6 class="mb-3">Đăng nhập & Phiên làm việc</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian hết hạn phiên (phút)</label>
+                                    <input type="number" class="form-control" id="sessionTimeout" min="5" max="480"
+                                        value="30">
+                                    <small class="text-muted">Thời gian không hoạt động trước khi tự động đăng
+                                        xuất</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lần đăng nhập sai tối đa</label>
+                                    <input type="number" class="form-control" id="maxLoginAttempts" min="3" max="10"
+                                        value="5">
+                                    <small class="text-muted">Số lần đăng nhập sai trước khi khóa tài khoản</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian khóa tài khoản (phút)</label>
+                                    <input type="number" class="form-control" id="accountLockoutDuration" min="5"
+                                        max="1440" value="15">
+                                    <small class="text-muted">Thời gian khóa tài khoản sau khi đăng nhập sai nhiều
+                                        lần</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="requireStrongPassword">
+                                    <label class="form-check-label" for="requireStrongPassword">
+                                        Yêu cầu mật khẩu mạnh
+                                    </label>
+                                    <small class="text-muted d-block">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa,
+                                        chữ thường, số và ký tự đặc biệt</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableTwoFactor">
+                                    <label class="form-check-label" for="enableTwoFactor">
+                                        Bật xác thực hai yếu tố (2FA)
+                                    </label>
+                                    <small class="text-muted d-block">Yêu cầu mã OTP khi đăng nhập</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableIPWhitelist">
+                                    <label class="form-check-label" for="enableIPWhitelist">
+                                        Bật danh sách IP trắng
+                                    </label>
+                                    <small class="text-muted d-block">Chỉ cho phép đăng nhập từ các IP đã được phê
+                                        duyệt</small>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Display Settings Tab -->
+                        <div class="tab-pane fade" id="display-settings" role="tabpanel">
+                            <form id="displaySettingsForm">
+                                <h6 class="mb-3">Giao diện & Hiển thị</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Ngôn ngữ</label>
+                                    <select class="form-select" id="language">
+                                        <option value="vi">Tiếng Việt</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                    <small class="text-muted">Ngôn ngữ hiển thị của hệ thống</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Màu tabs sidebar</label>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input type="color" class="form-control form-control-color" id="tabColor"
+                                            value="#8ea7e9" title="Chọn màu tabs">
+                                        <input type="text" class="form-control" id="tabColorHex" value="#8ea7e9"
+                                            placeholder="#8ea7e9" style="max-width: 120px;">
+                                        <button type="button" class="btn btn-sm btn-secondary"
+                                            onclick="resetTabColor()">Mặc định</button>
+                                    </div>
+                                    <small class="text-muted">Màu hiển thị khi tabs được chọn hoặc hover (chỉ áp dụng
+                                        cho sidebar)</small>
+                                    <div class="mt-2">
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #667eea; color: white; border: none;"
+                                                onclick="setTabColor('#667eea')">Tím</button>
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #4299e1; color: white; border: none;"
+                                                onclick="setTabColor('#4299e1')">Xanh dương</button>
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #48bb78; color: white; border: none;"
+                                                onclick="setTabColor('#48bb78')">Xanh lá</button>
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #ed8936; color: white; border: none;"
+                                                onclick="setTabColor('#ed8936')">Cam</button>
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #f56565; color: white; border: none;"
+                                                onclick="setTabColor('#f56565')">Đỏ</button>
+                                            <button type="button" class="btn btn-sm"
+                                                style="background: #9f7aea; color: white; border: none;"
+                                                onclick="setTabColor('#9f7aea')">Tím nhạt</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Màu chủ đạo</label>
+                                    <input type="color" class="form-control form-control-color" id="primaryColor"
+                                        value="#7f8ac5" title="Chọn màu chủ đạo">
+                                    <small class="text-muted">Màu chủ đạo của giao diện</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kích thước font chữ</label>
+                                    <select class="form-select" id="fontSize">
+                                        <option value="small">Nhỏ</option>
+                                        <option value="medium" selected>Trung bình</option>
+                                        <option value="large">Lớn</option>
+                                    </select>
+                                    <small class="text-muted">Kích thước font chữ mặc định</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="compactMode">
+                                    <label class="form-check-label" for="compactMode">
+                                        Chế độ compact
+                                    </label>
+                                    <small class="text-muted d-block">Giảm khoảng cách giữa các phần tử để hiển thị
+                                        nhiều nội dung hơn</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="showAnimations">
+                                    <label class="form-check-label" for="showAnimations">
+                                        Hiển thị hiệu ứng chuyển động
+                                    </label>
+                                    <small class="text-muted d-block">Bật/tắt các animation và transition
+                                        effects</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="showTooltips">
+                                    <label class="form-check-label" for="showTooltips">
+                                        Hiển thị tooltip gợi ý
+                                    </label>
+                                    <small class="text-muted d-block">Hiển thị gợi ý khi di chuột qua các nút và biểu
+                                        tượng</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số mục hiển thị mỗi trang (bảng)</label>
+                                    <input type="number" class="form-control" id="itemsPerPage" min="10" max="100"
+                                        value="25">
+                                    <small class="text-muted">Số dòng hiển thị trong các bảng danh sách</small>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Email Settings Tab -->
+                        <div class="tab-pane fade" id="email-settings" role="tabpanel">
+                            <form id="emailSettingsForm">
+                                <h6 class="mb-3">Cấu hình SMTP</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">SMTP Server</label>
+                                    <input type="text" class="form-control" id="smtpHost" placeholder="smtp.gmail.com">
+                                    <small class="text-muted">Địa chỉ máy chủ SMTP</small>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">SMTP Port</label>
+                                        <input type="number" class="form-control" id="smtpPort" placeholder="587"
+                                            min="1" max="65535">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Bảo mật</label>
+                                        <select class="form-select" id="smtpSecure">
+                                            <option value="none">Không</option>
+                                            <option value="tls">TLS</option>
+                                            <option value="ssl">SSL</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email gửi</label>
+                                    <input type="email" class="form-control" id="smtpEmail"
+                                        placeholder="noreply@example.com">
+                                    <small class="text-muted">Địa chỉ email dùng để gửi thông báo</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu email</label>
+                                    <input type="password" class="form-control" id="smtpPassword"
+                                        autocomplete="new-password" placeholder="Mật khẩu hoặc App Password">
+                                    <small class="text-muted">Mật khẩu email hoặc App Password (nếu dùng Gmail)</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="testEmailConnection">
+                                    <label class="form-check-label" for="testEmailConnection">
+                                        Kiểm tra kết nối email
+                                    </label>
+                                    <small class="text-muted d-block">Gửi email test để kiểm tra cấu hình</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Mẫu email</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Email người gửi hiển thị</label>
+                                    <input type="text" class="form-control" id="emailFromName"
+                                        placeholder="Hệ thống thi trực tuyến">
+                                    <small class="text-muted">Tên hiển thị trong email gửi đi</small>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- User Settings Tab -->
+                        <div class="tab-pane fade" id="user-settings" role="tabpanel">
+                            <form id="userSettingsForm">
+                                <h6 class="mb-3">Chính sách mật khẩu</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Độ dài mật khẩu tối thiểu</label>
+                                    <input type="number" class="form-control" id="minPasswordLength" min="6" max="20"
+                                        value="8">
+                                    <small class="text-muted">Số ký tự tối thiểu cho mật khẩu</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian hết hạn mật khẩu (ngày)</label>
+                                    <input type="number" class="form-control" id="passwordExpiryDays" min="0" max="365"
+                                        value="90">
+                                    <small class="text-muted">Số ngày trước khi yêu cầu đổi mật khẩu (0 = không hết
+                                        hạn)</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="preventPasswordReuse">
+                                    <label class="form-check-label" for="preventPasswordReuse">
+                                        Ngăn tái sử dụng mật khẩu cũ
+                                    </label>
+                                    <small class="text-muted d-block">Không cho phép sử dụng lại các mật khẩu đã dùng
+                                        trước đó</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Quản lý tài khoản</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="allowStudentRegistration">
+                                    <label class="form-check-label" for="allowStudentRegistration">
+                                        Cho phép đăng ký học sinh tự động
+                                    </label>
+                                    <small class="text-muted d-block">Học sinh có thể tự tạo tài khoản</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="requireEmailVerification">
+                                    <label class="form-check-label" for="requireEmailVerification">
+                                        Yêu cầu xác thực email
+                                    </label>
+                                    <small class="text-muted d-block">Người dùng phải xác thực email trước khi đăng
+                                        nhập</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số tài khoản tối đa mỗi lớp</label>
+                                    <input type="number" class="form-control" id="maxStudentsPerClass" min="1" max="500"
+                                        value="50">
+                                    <small class="text-muted">Giới hạn số lượng học sinh trong một lớp</small>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- System Settings Tab -->
+                        <div class="tab-pane fade" id="system-settings" role="tabpanel">
+                            <form id="systemSettingsForm">
+                                <h6 class="mb-3">Cấu hình hệ thống</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Số câu hỏi mỗi trang</label>
+                                    <input type="number" class="form-control" id="questionsPerPage" min="5" max="50"
+                                        required>
+                                    <small class="text-muted">Số câu hỏi hiển thị trên mỗi trang khi làm bài</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tự động lưu sau (giây)</label>
+                                    <input type="number" class="form-control" id="autoSaveInterval" min="10" max="300"
+                                        required>
+                                    <small class="text-muted">Tự động lưu câu trả lời sau mỗi X giây</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian lưu log (ngày)</label>
+                                    <input type="number" class="form-control" id="logRetentionDays" min="7" max="365"
+                                        value="30">
+                                    <small class="text-muted">Số ngày lưu trữ log hệ thống (tự động xóa log cũ)</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tần suất backup tự động (ngày)</label>
+                                    <input type="number" class="form-control" id="backupFrequency" min="0" max="30"
+                                        value="7">
+                                    <small class="text-muted">Tự động backup dữ liệu sau X ngày (0 = tắt)</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableMaintenanceMode">
+                                    <label class="form-check-label" for="enableMaintenanceMode">
+                                        Bật chế độ bảo trì
+                                    </label>
+                                    <small class="text-muted d-block">Khi bật, chỉ admin mới truy cập được hệ
+                                        thống</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableCaching">
+                                    <label class="form-check-label" for="enableCaching">
+                                        Bật cache hệ thống
+                                    </label>
+                                    <small class="text-muted d-block">Lưu cache để tăng tốc độ tải trang</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu admin mặc định (tùy chọn)</label>
+                                    <input type="password" class="form-control" id="defaultAdminPassword"
+                                        autocomplete="new-password">
+                                    <small class="text-muted">Mật khẩu mặc định cho tài khoản admin mới (để trống để
+                                        không thay đổi)</small>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Backup & Restore Settings Tab -->
+                        <div class="tab-pane fade" id="backup-settings" role="tabpanel">
+                            <form id="backupSettingsForm">
+                                <h6 class="mb-3">Sao lưu dữ liệu</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Lịch sao lưu tự động</label>
+                                    <select class="form-select" id="backupSchedule">
+                                        <option value="daily">Hàng ngày</option>
+                                        <option value="weekly" selected>Hàng tuần</option>
+                                        <option value="monthly">Hàng tháng</option>
+                                        <option value="disabled">Tắt</option>
+                                    </select>
+                                    <small class="text-muted">Tần suất sao lưu tự động</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Giữ lại số bản sao lưu</label>
+                                    <input type="number" class="form-control" id="backupRetention" min="1" max="30"
+                                        value="7">
+                                    <small class="text-muted">Số bản sao lưu tối đa được giữ lại (tự động xóa bản
+                                        cũ)</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="backupIncludeFiles">
+                                    <label class="form-check-label" for="backupIncludeFiles">
+                                        Bao gồm file đính kèm
+                                    </label>
+                                    <small class="text-muted d-block">Bao gồm các file upload trong bản sao lưu</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="backupCompress">
+                                    <label class="form-check-label" for="backupCompress">
+                                        Nén file sao lưu
+                                    </label>
+                                    <small class="text-muted d-block">Nén file để tiết kiệm dung lượng</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Thao tác sao lưu</h6>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-primary" onclick="createBackup()">
+                                        <i class="bi bi-download"></i> Tạo bản sao lưu ngay
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        onclick="viewBackupHistory()">
+                                        <i class="bi bi-clock-history"></i> Xem lịch sử sao lưu
+                                    </button>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Khôi phục dữ liệu</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Chọn file sao lưu</label>
+                                    <input type="file" class="form-control" id="restoreFile" accept=".sql,.zip,.backup">
+                                    <small class="text-muted">Chọn file sao lưu để khôi phục</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="restoreOverwrite">
+                                    <label class="form-check-label" for="restoreOverwrite">
+                                        Ghi đè dữ liệu hiện tại
+                                    </label>
+                                    <small class="text-danger d-block">Cảnh báo: Dữ liệu hiện tại sẽ bị thay
+                                        thế!</small>
+                                </div>
+                                <button type="button" class="btn btn-danger" onclick="restoreBackup()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Khôi phục từ file
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Logs & Monitoring Settings Tab -->
+                        <div class="tab-pane fade" id="logs-settings" role="tabpanel">
+                            <form id="logsSettingsForm">
+                                <h6 class="mb-3">Cấu hình Log</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Mức độ log</label>
+                                    <select class="form-select" id="logLevel">
+                                        <option value="error">Chỉ lỗi</option>
+                                        <option value="warn">Cảnh báo</option>
+                                        <option value="info" selected>Thông tin</option>
+                                        <option value="debug">Debug (chi tiết)</option>
+                                    </select>
+                                    <small class="text-muted">Mức độ chi tiết của log hệ thống</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kích thước file log tối đa (MB)</label>
+                                    <input type="number" class="form-control" id="maxLogFileSize" min="1" max="100"
+                                        value="10">
+                                    <small class="text-muted">Khi đạt kích thước này, file log sẽ được rotate</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="logUserActions">
+                                    <label class="form-check-label" for="logUserActions">
+                                        Ghi log hành động người dùng
+                                    </label>
+                                    <small class="text-muted d-block">Ghi lại các thao tác quan trọng của người
+                                        dùng</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="logAPIRequests">
+                                    <label class="form-check-label" for="logAPIRequests">
+                                        Ghi log yêu cầu API
+                                    </label>
+                                    <small class="text-muted d-block">Ghi lại tất cả các yêu cầu API</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Giám sát hệ thống</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableSystemMonitoring">
+                                    <label class="form-check-label" for="enableSystemMonitoring">
+                                        Bật giám sát hệ thống
+                                    </label>
+                                    <small class="text-muted d-block">Theo dõi hiệu suất và tài nguyên hệ thống</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tần suất kiểm tra (phút)</label>
+                                    <input type="number" class="form-control" id="monitoringInterval" min="1" max="60"
+                                        value="5">
+                                    <small class="text-muted">Tần suất kiểm tra tài nguyên hệ thống</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ngưỡng cảnh báo CPU (%)</label>
+                                    <input type="number" class="form-control" id="cpuThreshold" min="50" max="100"
+                                        value="80">
+                                    <small class="text-muted">Cảnh báo khi CPU vượt quá ngưỡng này</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ngưỡng cảnh báo RAM (%)</label>
+                                    <input type="number" class="form-control" id="ramThreshold" min="50" max="100"
+                                        value="85">
+                                    <small class="text-muted">Cảnh báo khi RAM vượt quá ngưỡng này</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Xem log</h6>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-primary" onclick="viewSystemLogs()">
+                                        <i class="bi bi-file-text"></i> Xem log hệ thống
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="exportLogs()">
+                                        <i class="bi bi-download"></i> Xuất log
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="clearOldLogs()">
+                                        <i class="bi bi-trash"></i> Xóa log cũ
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- API & Integration Settings Tab -->
+                        <div class="tab-pane fade" id="api-settings" role="tabpanel">
+                            <form id="apiSettingsForm">
+                                <h6 class="mb-3">Cấu hình API</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableAPI">
+                                    <label class="form-check-label" for="enableAPI">
+                                        Bật API công khai
+                                    </label>
+                                    <small class="text-muted d-block">Cho phép truy cập API từ bên ngoài</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">API Key</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="apiKey" readonly>
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="generateAPIKey()">
+                                            <i class="bi bi-arrow-repeat"></i> Tạo mới
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copyAPIKey()">
+                                            <i class="bi bi-clipboard"></i> Sao chép
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">API Key để xác thực các yêu cầu API</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Rate limit (yêu cầu/phút)</label>
+                                    <input type="number" class="form-control" id="apiRateLimit" min="10" max="1000"
+                                        value="100">
+                                    <small class="text-muted">Giới hạn số yêu cầu API mỗi phút</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian hết hạn token (phút)</label>
+                                    <input type="number" class="form-control" id="apiTokenExpiry" min="5" max="1440"
+                                        value="60">
+                                    <small class="text-muted">Thời gian hết hạn của JWT token</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Tích hợp bên thứ ba</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableGoogleIntegration">
+                                    <label class="form-check-label" for="enableGoogleIntegration">
+                                        Tích hợp Google
+                                    </label>
+                                    <small class="text-muted d-block">Cho phép đăng nhập bằng Google</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Google Client ID</label>
+                                    <input type="text" class="form-control" id="googleClientId"
+                                        placeholder="your-google-client-id">
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableFacebookIntegration">
+                                    <label class="form-check-label" for="enableFacebookIntegration">
+                                        Tích hợp Facebook
+                                    </label>
+                                    <small class="text-muted d-block">Cho phép đăng nhập bằng Facebook</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Facebook App ID</label>
+                                    <input type="text" class="form-control" id="facebookAppId"
+                                        placeholder="your-facebook-app-id">
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Webhook</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Webhook URL</label>
+                                    <input type="url" class="form-control" id="webhookUrl"
+                                        placeholder="https://example.com/webhook">
+                                    <small class="text-muted">URL để gửi thông báo sự kiện</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="webhookOnExamStart">
+                                    <label class="form-check-label" for="webhookOnExamStart">
+                                        Gửi webhook khi kỳ thi bắt đầu
+                                    </label>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="webhookOnExamEnd">
+                                    <label class="form-check-label" for="webhookOnExamEnd">
+                                        Gửi webhook khi kỳ thi kết thúc
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Performance Settings Tab -->
+                        <div class="tab-pane fade" id="performance-settings" role="tabpanel">
+                            <form id="performanceSettingsForm">
+                                <h6 class="mb-3">Tối ưu hiệu suất</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableCDN">
+                                    <label class="form-check-label" for="enableCDN">
+                                        Sử dụng CDN
+                                    </label>
+                                    <small class="text-muted d-block">Sử dụng Content Delivery Network để tăng tốc độ
+                                        tải</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CDN URL</label>
+                                    <input type="url" class="form-control" id="cdnUrl"
+                                        placeholder="https://cdn.example.com">
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableGzip">
+                                    <label class="form-check-label" for="enableGzip">
+                                        Nén Gzip
+                                    </label>
+                                    <small class="text-muted d-block">Nén response để giảm băng thông</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian cache (giây)</label>
+                                    <input type="number" class="form-control" id="cacheDuration" min="0" max="86400"
+                                        value="3600">
+                                    <small class="text-muted">Thời gian cache cho static files (0 = không cache)</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Tối ưu database</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Kích thước connection pool</label>
+                                    <input type="number" class="form-control" id="dbPoolSize" min="5" max="50"
+                                        value="10">
+                                    <small class="text-muted">Số kết nối database tối đa</small>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableQueryCache">
+                                    <label class="form-check-label" for="enableQueryCache">
+                                        Bật cache truy vấn
+                                    </label>
+                                    <small class="text-muted d-block">Cache kết quả truy vấn thường dùng</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian cache truy vấn (giây)</label>
+                                    <input type="number" class="form-control" id="queryCacheDuration" min="60"
+                                        max="3600" value="300">
+                                    <small class="text-muted">Thời gian cache kết quả truy vấn</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Tối ưu hình ảnh</h6>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableImageOptimization">
+                                    <label class="form-check-label" for="enableImageOptimization">
+                                        Tự động tối ưu hình ảnh
+                                    </label>
+                                    <small class="text-muted d-block">Tự động nén và resize hình ảnh khi upload</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kích thước hình ảnh tối đa (MB)</label>
+                                    <input type="number" class="form-control" id="maxImageSize" min="1" max="10"
+                                        value="5">
+                                    <small class="text-muted">Kích thước file hình ảnh tối đa khi upload</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Chất lượng nén hình ảnh (%)</label>
+                                    <input type="number" class="form-control" id="imageQuality" min="50" max="100"
+                                        value="80">
+                                    <small class="text-muted">Chất lượng hình ảnh sau khi nén</small>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Thống kê hiệu suất</h6>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-info" onclick="viewPerformanceStats()">
+                                        <i class="bi bi-graph-up"></i> Xem thống kê hiệu suất
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" onclick="clearCache()">
+                                        <i class="bi bi-arrow-clockwise"></i> Xóa cache
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="optimizeDatabase()">
+                                        <i class="bi bi-tools"></i> Tối ưu database
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button class="btn btn-secondary" id="resetSettingsBtn">Đặt lại mặc định</button>
+                        <button class="btn btn-primary" id="saveSettingsBtn">
+                            <i class="bi bi-save"></i> Lưu cài đặt
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Người Dùng -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" id="userUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Họ và Tên</label>
+                            <input type="text" class="form-control" id="userFullName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="userPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vai trò</label>
+                            <select class="form-select" id="userRole">
+                                <option value="Student">Sinh viên</option>
+                                <option value="Teacher">Giáo viên</option>
+                                <option value="Admin">Quản trị viên</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveUserBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Môn Học -->
+    <div class="modal fade" id="addSubjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Môn Học</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSubjectForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên môn học</label>
+                            <input type="text" class="form-control" id="subjectName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveSubjectBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Kỳ Thi -->
+    <div class="modal fade" id="addExamModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo Kỳ Thi Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addExamForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên kỳ thi <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="examName" required
+                                placeholder="VD: Kiểm tra giữa kỳ - Môn học">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Môn học <span class="text-danger">*</span></label>
+                            <select class="form-select" id="examSubjectId" required>
+                                <option value="">Chọn môn học</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giáo viên (tùy chọn)</label>
+                            <select class="form-select" id="examTeacherId">
+                                <option value="">Tự động gán (Admin hiện tại)</option>
+                            </select>
+                            <small class="text-muted">Nếu không chọn, sẽ tự động gán cho admin hiện tại</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thời gian làm bài (phút) <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="examDuration" required min="1"
+                                placeholder="VD: 60">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveExamBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Kỳ Thi -->
+    <div class="modal fade" id="viewExamModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Kỳ Thi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="examDetailContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Người Dùng -->
+    <div class="modal fade" id="viewUserModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userDetailContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Điểm Số Học Sinh -->
+    <div class="modal fade" id="viewStudentScoresModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Điểm Số Học Sinh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="studentScoresContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/client/public/js/config.js"></script>
+    <script src="/client/public/js/api.js"></script>
+    <script src="/client/public/js/admin.js"></script>
+    <script src="/client/public/js/scroll-to-top.js"></script>
+</body>
+
+</html>

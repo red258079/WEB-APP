@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edexis - Hệ Thống Thi Trực Tuyến Thông Minh</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/client/public/images/edu.png">
+
+    <link rel="stylesheet" href="/client/public/css/home.css">
+    
+    <style>
+        /* Enhanced button hover effects */
+        .btn-gradient {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+        /* Enhanced card animations */
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Glowing effect for stats */
+        .stat-number {
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        /* Enhanced floating elements */
+        .floating-element {
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .floating-element:hover {
+            transform: scale(1.1) rotate(10deg) !important;
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="main-nav">
+        <nav class="nav-content">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-graduation-cap me-2"></i>Edexis
+            </a>
+            
+            <button class="navbar-toggler" type="button" id="navbarToggle" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </span>
+            </button>
+            
+            <div class="nav-menu" id="navMenu">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Trang Chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Tính Năng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Giới Thiệu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Liên Hệ</a>
+                    </li>
+                    <li class="nav-item" id="authLink">
+                        <a class="nav-link" href="/client/src/pages/login.html">Đăng Nhập</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="floating-elements">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+        
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content" data-aos="fade-right">
+                    <h1>Hệ Thống Thi Trực Tuyến Thông Minh</h1>
+                    <p class="lead">Nền tảng thi trực tuyến hiện đại với AI tự động sinh đề, chống gian lận thông minh và quản lý lớp học toàn diện. Trải nghiệm giáo dục số hoàn toàn mới!</p>
+                    
+                    <div class="hero-buttons">
+                        <a href="/client/src/pages/register.html" class="btn-gradient me-3">
+                            <i class="fas fa-rocket me-2"></i>Bắt Đầu Ngay
+                        </a>
+                        <a href="#demo" class="btn-gradient me-3">
+                            <i class="fas fa-play me-2"></i>Xem Demo
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="hero-image text-center">
+                        <div style="background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 20px; padding: 3rem; border: 1px solid var(--glass-border);">
+                            <i class="fas fa-laptop-code" style="font-size: 8rem; color: rgba(255,255,255,0.8);"></i>
+                            <div class="mt-3">
+                                <h4 style="color: white; font-weight: 600;">Công Nghệ AI Tiên Tiến</h4>
+                                <p style="color: var(--text-light);">Tự động hóa hoàn toàn quy trình thi cử</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="section-title" data-aos="fade-up">Tính Năng Nổi Bật</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4>AI Sinh Đề Tự Động</h4>
+                        <p>Trí tuệ nhân tạo tiên tiến tự động tạo ra hàng ngàn câu hỏi chất lượng cao, phù hợp với từng chủ đề và mức độ khó.</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Chống Gian Lận Thông Minh</h4>
+                        <p>Hệ thống giám sát đa lớp với công nghệ nhận dạng khuôn mặt, theo dõi hành vi và phát hiện bất thường trong thời gian thực.</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <h4>Quản Lý Lớp Học</h4>
+                        <p>Công cụ quản lý toàn diện cho giáo viên: tạo lớp, phân quyền học sinh, theo dõi tiến độ và phân tích kết quả chi tiết.</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Phân Tích Thông Minh</h4>
+                        <p>Dashboard trực quan với biểu đồ, báo cáo chi tiết về hiệu suất học tập, điểm mạnh và điểm cần cải thiện của học sinh.</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4>Đa Nền Tảng</h4>
+                        <p>Truy cập mọi lúc, mọi nơi trên máy tính, tablet, điện thoại với giao diện responsive và trải nghiệm mượt mà.</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <h4>Lưu Trữ An Toàn</h4>
+                        <p>Dữ liệu được bảo mật tuyệt đối trên đám mây với hệ thống sao lưu tự động và khôi phục nhanh chóng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <div class="about-image">
+                        <div style="background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 20px; padding: 3rem; border: 1px solid var(--glass-border); text-align: center;">
+                            <i class="fas fa-graduation-cap" style="font-size: 6rem; color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;"></i>
+                            <h3 style="color: white; font-weight: 700; margin-bottom: 1rem;">Edexis</h3>
+                            <p style="color: var(--text-light); font-size: 1.1rem;">Hệ thống thi trực tuyến thông minh</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6" data-aos="fade-left">
+                    <h2 class="section-title text-start mb-4">Về Chúng Tôi</h2>
+                    <p class="lead mb-4" style="color: var(--text-light); line-height: 1.8;">
+                        <strong>Edexis</strong> là nền tảng thi trực tuyến hàng đầu tại Việt Nam, được phát triển với mục tiêu cách mạng hóa phương thức giáo dục và đánh giá học tập. Chúng tôi kết hợp công nghệ trí tuệ nhân tạo tiên tiến với các giải pháp quản lý hiện đại để mang đến trải nghiệm giáo dục số hoàn toàn mới.
+                    </p>
+                    
+                    <div class="about-features mb-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon-small me-3">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: white; margin-bottom: 0.5rem;">Sứ Mệnh</h5>
+                                        <p style="color: var(--text-light); margin: 0;">Mang công nghệ giáo dục đến mọi người, mọi nơi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon-small me-3">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: white; margin-bottom: 0.5rem;">Tầm Nhìn</h5>
+                                        <p style="color: var(--text-light); margin: 0;">Trở thành nền tảng giáo dục số hàng đầu Đông Nam Á</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon-small me-3">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: white; margin-bottom: 0.5rem;">Giá Trị Cốt Lõi</h5>
+                                        <p style="color: var(--text-light); margin: 0;">Đổi mới, Chính trực, Hiệu quả</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon-small me-3">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: white; margin-bottom: 0.5rem;">Đội Ngũ</h5>
+                                        <p style="color: var(--text-light); margin: 0;">Chuyên gia công nghệ và giáo dục giàu kinh nghiệm</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="about-stats mt-4">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-box-small">
+                                    <div class="stat-number-small">2024</div>
+                                    <div class="stat-label-small">Năm Thành Lập</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-box-small">
+                                    <div class="stat-number-small">50+</div>
+                                    <div class="stat-label-small">Thành Viên</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-box-small">
+                                    <div class="stat-number-small">100+</div>
+                                    <div class="stat-label-small">Trường Học</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Why Choose Us -->
+            <div class="row mt-5">
+                <div class="col-12" data-aos="fade-up">
+                    <h3 class="text-center mb-5" style="color: white; font-weight: 700;">Tại Sao Chọn Edexis?</h3>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h5>Đổi Mới Công Nghệ</h5>
+                        <p>Luôn đi đầu trong việc ứng dụng AI và công nghệ mới nhất vào giáo dục</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5>Bảo Mật Tuyệt Đối</h5>
+                        <p>Hệ thống bảo mật đa lớp, đảm bảo dữ liệu được bảo vệ an toàn nhất</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h5>Hỗ Trợ 24/7</h5>
+                        <p>Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5>Hiệu Quả Cao</h5>
+                        <p>Tiết kiệm thời gian, tăng năng suất giảng dạy và học tập lên 300%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-count="50000">0</span>
+                        <div class="stat-label">Học Sinh Đăng Ký</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-count="2500">0</span>
+                        <div class="stat-label">Giáo Viên Tin Dùng</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-count="1000000">0</span>
+                        <div class="stat-label">Câu Hỏi AI Tạo</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-item">
+                        <span class="stat-number">99.9<span style="font-size: 2rem;">%</span></span>
+                        <div class="stat-label">Độ Tin Cậy Hệ Thống</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="row">
+                <div class="col-12" data-aos="fade-up">
+                    <h2>Sẵn Sàng Trải Nghiệm?</h2>
+                    <p class="lead">Tham gia cùng hàng nghìn giáo viên và học sinh đã tin tưởng Edexis</p>
+                    <a href="src/pages/register.html" class="btn-gradient">
+                        <i class="fas fa-user-plus me-2"></i>Đăng Ký Miễn Phí
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>
+                        <i class="fas fa-graduation-cap me-2"></i>Edexis
+                    </h5>
+                    <p>Hệ thống thi trực tuyến thông minh hàng đầu Việt Nam, mang đến trải nghiệm giáo dục số hiện đại và hiệu quả.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Sản Phẩm</h5>
+                    <a href="#">Hệ Thống Thi</a>
+                    <a href="#">AI Sinh Đề</a>
+                    <a href="#">Quản Lý Lớp</a>
+                    <a href="#">Phân Tích Dữ Liệu</a>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Hỗ Trợ</h5>
+                    <a href="#">Trung Tâm Trợ Giúp</a>
+                    <a href="#">Hướng Dẫn</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Liên Hệ</a>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Công Ty</h5>
+                    <a href="#">Về Chúng Tôi</a>
+                    <a href="#">Tin Tức</a>
+                    <a href="#">Sự Nghiệp</a>
+                    <a href="#">Đối Tác</a>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Pháp Lý</h5>
+                    <a href="#">Chính Sách Bảo Mật</a>
+                    <a href="#">Điều Khoản Sử Dụng</a>
+                    <a href="#">Bảo Mật Dữ Liệu</a>
+                </div>
+            </div>
+            <hr style="border-color: #444; margin: 2rem 0;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p>&copy; 2025 Edexis. Tất cả quyền được bảo lưu.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Được phát triển với <i class="fas fa-heart text-danger"></i> tại Việt Nam</p>
+                </div>
+            </div>
+        </div>
+        <!--Start of Tawk.to Script-->
+        <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/68df774108c626194e220ca4/1j6kejmp8';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+        </script>
+        <!--End of Tawk.to Script-->
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.role = 'alert';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Kiểm tra trạng thái đăng nhập
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const authLink = document.getElementById('authLink');
+            if (authLink) {
+                if (token) {
+                    authLink.innerHTML = `
+                        <a class="nav-link btn btn-outline-danger rounded-pill px-3 ms-2" href="#" onclick="logout()">Đăng Xuất</a>
+                    `;
+                } else {
+                    authLink.innerHTML = `
+                        <a class="nav-link btn btn-outline-primary rounded-pill px-3 ms-2" href="/client/src/pages/login.html">Đăng Nhập</a>
+                    `;
+                }
+            } else {
+                console.error('Phần tử authLink không tồn tại!');
+            }
+        }
+
+        // Hàm đăng xuất
+        function logout() {
+            localStorage.removeItem('token');
+            showToast('Đăng xuất thành công!', 'success');
+            setTimeout(() => {
+                checkAuth(); // Cập nhật lại nút đăng nhập/đăng xuất
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Cuộn lên đầu trang
+            }, 1000);
+        }
+
+        // Hamburger menu toggle cho mobile
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const navbarToggle = document.getElementById('navbarToggle');
+            
+            if (navMenu) {
+                navMenu.classList.toggle('active');
+                if (navbarToggle) {
+                    navbarToggle.classList.toggle('active');
+                }
+            }
+        }
+
+        // Event listener cho hamburger menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbarToggle');
+            if (navbarToggle) {
+                navbarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+                
+                // Hỗ trợ touch event cho mobile
+                navbarToggle.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+            }
+            
+            // Đóng menu khi click vào nav link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const navMenu = document.getElementById('navMenu');
+                    if (navMenu && window.innerWidth <= 768) {
+                        navMenu.classList.remove('active');
+                        const navbarToggle = document.getElementById('navbarToggle');
+                        if (navbarToggle) {
+                            navbarToggle.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Gọi hàm kiểm tra đăng nhập khi tải trang
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hide');
+            }, 1000);
+            checkAuth(); // Gọi checkAuth sau khi tải xong
+        });
+
+        // Throttle function để tối ưu performance
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // Navbar scroll effect với throttle
+        window.addEventListener('scroll', throttle(function() {
+            const navbar = document.querySelector('.main-nav');
+            if (navbar) {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        }, 100));
+
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const increment = target / 100;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        if (target >= 1000000) {
+                            counter.textContent = (current / 1000000).toFixed(1) + 'M';
+                        } else if (target >= 1000) {
+                            counter.textContent = (current / 1000).toFixed(0) + 'K+';
+                        } else {
+                            counter.textContent = Math.ceil(current).toLocaleString();
+                        }
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        if (target >= 1000000) {
+                            counter.textContent = (target / 1000000).toFixed(1) + 'M+';
+                        } else if (target >= 1000) {
+                            counter.textContent = (target / 1000).toFixed(0) + 'K+';
+                        } else {
+                            counter.textContent = target.toLocaleString() + '+';
+                        }
+                    }
+                };
+                
+                updateCounter();
+            });
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsSection = document.querySelector('.stats');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(statsSection);
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Parallax effect đã được loại bỏ để tối ưu performance
+        // Nếu cần, có thể sử dụng CSS transform với scroll-triggered animations
+
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            const heroTitle = document.querySelector('.hero h1');
+
+            let greeting = 'Hệ Thống Thi Trực Tuyến Thông Minh';
+
+            if (hour >= 6 && hour < 12) {
+                greeting = '☀️ Chào Buổi Sáng! Hệ Thống Thi Trực Tuyến';
+            } else if (hour >= 12 && hour < 18) {
+                greeting = '🌤️ Chào Buổi Chiều! Hệ Thống Thi Trực Tuyến';
+            } else if (hour >= 18 && hour < 22) {
+                greeting = '🌙 Chào Buổi Tối! Hệ Thống Thi Trực Tuyến';
+            } else {
+                greeting = '🌌 Chúc Ngủ Ngon! Hệ Thống Thi Trực Tuyến';
+            }
+
+            if (heroTitle) {
+                heroTitle.textContent = greeting;
+            }
+        }
+
+        // Gọi khi load trang
+        window.addEventListener('load', updateGreeting);
+
+        // Typing effect for hero subtitle - tối ưu với requestAnimationFrame
+        function typeWriter() {
+            const text = "Nền tảng thi trực tuyến hiện đại với AI tự động sinh đề, chống gian lận thông minh và quản lý lớp học toàn diện. Trải nghiệm giáo dục số hoàn toàn mới!";
+            const heroSubtitle = document.querySelector('.hero .lead');
+            if (!heroSubtitle) return;
+            
+            let i = 0;
+            let lastTime = 0;
+            const interval = 50; // Tăng interval để giảm số lần update
+            
+            function type(currentTime) {
+                if (currentTime - lastTime >= interval) {
+                    if (i < text.length) {
+                        heroSubtitle.textContent = text.substring(0, i + 1) + '|';
+                        i++;
+                        lastTime = currentTime;
+                    } else {
+                        heroSubtitle.textContent = text;
+                        return;
+                    }
+                }
+                requestAnimationFrame(type);
+            }
+            
+            // Start typing effect after a delay
+            setTimeout(() => {
+                heroSubtitle.textContent = '';
+                requestAnimationFrame(type);
+            }, 1500);
+        }
+
+        // Initialize typing effect if screen is large enough và user không prefer reduced motion
+        if (window.innerWidth > 768 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            typeWriter();
+        }
+
+        // Add cursor blink animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .cursor {
+                animation: blink 1s infinite;
+            }
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Feature cards hover effect - đã được xử lý bằng CSS, không cần JavaScript
+
+        // Button click effects - tối ưu với passive listener và debounce
+        let rippleTimeout = null;
+        document.querySelectorAll('.btn-gradient, .btn-outline-glass').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Debounce để tránh nhiều ripple cùng lúc
+                if (rippleTimeout) return;
+                
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.4);
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                    will-change: transform, opacity;
+                `;
+                
+                if (this.style.position !== 'relative') {
+                    this.style.position = 'relative';
+                }
+                if (this.style.overflow !== 'hidden') {
+                    this.style.overflow = 'hidden';
+                }
+                this.appendChild(ripple);
+                
+                rippleTimeout = setTimeout(() => {
+                    ripple.remove();
+                    rippleTimeout = null;
+                }, 600);
+            }, { passive: true });
+        });
+
+        // Add ripple animation
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
+
+        // Progressive enhancement for older browsers
+        if (!window.IntersectionObserver) {
+            animateCounters();
+        }
+
+        // Floating elements mousemove effect - đã được tối ưu với throttle
+        let mouseX = 0, mouseY = 0;
+        let rafId = null;
+        
+        document.addEventListener('mousemove', throttle(function(e) {
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+            
+            if (!rafId) {
+                rafId = requestAnimationFrame(function() {
+                    const floatingElements = document.querySelectorAll('.floating-element');
+                    
+                    floatingElements.forEach((element, index) => {
+                        const speed = (index + 1) * 0.01;
+                        const x = (window.innerWidth - mouseX * speed) / 100;
+                        const y = (window.innerHeight - mouseY * speed) / 100;
+                        
+                        element.style.transform = `translate(${x}px, ${y}px) rotate(${x + y}deg)`;
+                    });
+                    
+                    rafId = null;
+                });
+            }
+        }, 50));
+
+        // Console welcome message
+        console.log(`
+        🎓 Chào mừng đến với Edexis!
+        🚀 Hệ thống thi trực tuyến thông minh
+        💡 Phát triển với công nghệ hiện đại
+        
+        Cần hỗ trợ? Liên hệ: support@edexis.vn
+        `);
+    </script>
+</body>
+</html>

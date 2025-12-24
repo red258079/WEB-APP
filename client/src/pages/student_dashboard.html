@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Ngăn trình duyệt cache trang - bảo mật sau logout -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>EduSystem - Học sinh</title>
+    <link rel="stylesheet" href="/client/public/css/student.css">
+    <link rel="stylesheet" href="/client/public/css/scroll-to-top.css">
+    <link rel="icon" type="image/png" href="/client/public/images/edu.png">
+    <style>
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .practice-spinner {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+</head>
+
+<body>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">🎓 EduSystem</div>
+            <div style="font-size: 14px; color: #666;">Hệ thống giáo dục</div>
+        </div>
+
+        <div class="menu-item active" onclick="showSection('dashboard')">
+            <span class="menu-icon">🏠</span>
+            <span>Trang chủ</span>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu('classes')">
+            <span class="menu-icon">👥</span>
+            <span>Lớp học</span>
+            <span class="arrow" id="classes-arrow">▶</span>
+        </div>
+        <div class="submenu" id="classes-submenu">
+            <div class="submenu-item" onclick="showSection('join-class')">Tham gia lớp học</div>
+            <div class="submenu-item" onclick="showSection('my-classes')">Lớp của tôi</div>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu('tests')">
+            <span class="menu-icon">📝</span>
+            <span>Bài kiểm tra</span>
+            <span class="arrow" id="tests-arrow">▶</span>
+        </div>
+        <div class="submenu" id="tests-submenu">
+            <div class="submenu-item" onclick="showSection('available-tests')">Bài thi khả dụng</div>
+            <div class="submenu-item" onclick="showSection('test-history')">Lịch sử làm bài</div>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu('practice')">
+            <span class="menu-icon">✨</span>
+            <span>Luyện tập</span>
+            <span class="arrow" id="practice-arrow">▶</span>
+        </div>
+        <div class="submenu" id="practice-submenu">
+            <div class="submenu-item" onclick="showSection('create-practice')">Tạo đề luyện tập</div>
+            <div class="submenu-item" onclick="showSection('my-practice')">Đề luyện tập của tôi</div>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu('results')">
+            <span class="menu-icon">📊</span>
+            <span>Kết quả</span>
+            <span class="arrow" id="results-arrow">▶</span>
+        </div>
+        <div class="submenu" id="results-submenu">
+            <div class="submenu-item" onclick="showSection('my-results')">Kết quả của tôi</div>
+            <div class="submenu-item" onclick="showSection('statistics')">Thống kê</div>
+            <div class="submenu-item" onclick="showSection('ranking')">Bảng xếp hạng</div>
+        </div>
+
+        <div class="menu-item" onclick="showSection('complaints')">
+            <span class="menu-icon">⚖️</span>
+            <span>Khiếu nại điểm</span>
+        </div>
+
+        <div class="menu-item" onclick="logout()">
+            <span class="menu-icon">🚪</span>
+            <span>Đăng xuất</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title" id="pageTitle">Trang chủ</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()"
+                    title="Chuyển đổi chế độ tối">
+                    <span id="darkModeIcon">🌙</span>
+                </button>
+                <div class="notification-badge" onclick="showNotifications()">🔔</div>
+            </div>
+        </div>
+
+        <div class="content-section active" id="dashboard">
+            <div class="profile-section">
+                <div class="card profile-card">
+                    <div class="profile-avatar-large" onclick="document.getElementById('avatarUpload').click()">
+                        HS
+                        <div class="avatar-upload">📷</div>
+                    </div>
+                    <input type="file" id="avatarUpload" style="display: none;" accept="image/*"
+                        onchange="uploadAvatar(this)">
+
+                    <h3 id="userName">Đang tải...</h3>
+                    <p style="color: #666; margin-bottom: 20px;" id="userId">MSSV: Đang tải...</p>
+
+                    <div class="stat-box">
+                        <div class="stat-number" id="avgScore">Đang tải...</div>
+                        <div class="stat-label">Điểm trung bình</div>
+                    </div>
+
+                    <div class="stat-box" style="background: linear-gradient(45deg, #43e97b, #38f9d7);">
+                        <div class="stat-number" id="rankPosition">Đang tải...</div>
+                        <div class="stat-label">Xếp hạng lớp</div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 15px;"
+                        onclick="openModal('editProfileModal')">✏️ Cập nhật thông tin</button>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px;">Thông tin cá nhân</h3>
+                        <div class="info-grid" id="userInfo">
+                            <!-- Dữ liệu sẽ được điền động -->
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;" id="upcomingTests">
+                        <!-- Dữ liệu sẽ được điền động -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="join-class">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Tham gia lớp học</h3>
+                <input type="text" class="input-field" placeholder="Nhập mã lớp (VD: CLASS2024)" id="classCode">
+                <button class="btn btn-primary" onclick="joinClass()">Tham gia</button>
+                <button class="btn"
+                    style="margin-left: 10px; background: linear-gradient(45deg, #4facfe, #00f2fe); color: white;"
+                    onclick="joinByLink()">Dùng link mời</button>
+            </div>
+        </div>
+
+        <div class="content-section" id="my-classes">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Lớp của tôi</h3>
+                <div id="myClassesList">
+                    <!-- Dữ liệu sẽ được điền động -->
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="class-detail">
+            <button class="btn" style="margin-bottom: 20px;" onclick="backToMyClasses()">← Quay lại danh sách
+                lớp</button>
+
+            <!-- Thông tin lớp học -->
+            <div class="card"
+                style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; margin-bottom: 20px;">
+                <h3 style="color: white; margin-bottom: 20px;" id="classDetailTitle">Chi tiết lớp học</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">📚 Mã lớp</div>
+                        <div style="font-size: 18px; font-weight: bold;" id="detailClassCode">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">📖 Môn học</div>
+                        <div style="font-size: 18px; font-weight: bold;" id="detailSubject">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">👨‍🏫 Giáo viên</div>
+                        <div style="font-size: 18px; font-weight: bold;" id="detailTeacher">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">📅 Năm học</div>
+                        <div style="font-size: 18px; font-weight: bold;" id="detailYear">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="class-tabs-container">
+                <button class="class-tab active" onclick="switchClassTab('students')">
+                    <span class="tab-icon">👥</span>
+                    <span>Học sinh</span>
+                    <span class="tab-count" id="studentsCount">(0)</span>
+                </button>
+                <button class="class-tab" onclick="switchClassTab('tests')">
+                    <span class="tab-icon">📝</span>
+                    <span>Bài kiểm tra</span>
+                    <span class="tab-count" id="testsCount">(0)</span>
+                </button>
+                <button class="class-tab" onclick="switchClassTab('materials')">
+                    <span class="tab-icon">📚</span>
+                    <span>Tài liệu</span>
+                    <span class="tab-count" id="materialsCount">(0)</span>
+                </button>
+                <button class="class-tab" onclick="switchClassTab('announcements')">
+                    <span class="tab-icon">📢</span>
+                    <span>Thông báo</span>
+                    <span class="tab-count" id="announcementsCount">(0)</span>
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="card">
+                <div id="classTabStudents" class="class-tab-content active">
+                    <h3 style="margin-bottom: 20px;">👥 Danh sách học sinh</h3>
+                    <div id="studentsList"></div>
+                </div>
+
+                <div id="classTabTests" class="class-tab-content">
+                    <h3 style="margin-bottom: 20px;">📝 Bài kiểm tra</h3>
+                    <div id="testsList"></div>
+                </div>
+
+                <div id="classTabMaterials" class="class-tab-content">
+                    <h3 style="margin-bottom: 20px;">📚 Tài liệu học tập</h3>
+                    <div id="materialsList"></div>
+                </div>
+
+                <div id="classTabAnnouncements" class="class-tab-content">
+                    <h3 style="margin-bottom: 20px;">📢 Thông báo từ giáo viên</h3>
+                    <div id="announcementsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="available-tests">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Bài kiểm tra khả dụng</h3>
+                <div id="availableTestsList">
+                    <!-- Dữ liệu sẽ được điền động -->
+                </div>
+            </div>
+        </div>
+        <div class="content-section" id="test-history">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Lịch sử làm bài</h3>
+                <div id="testHistoryList">
+                    <!-- Dữ liệu sẽ được điền động -->
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="my-results">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Kết quả của tôi</h3>
+                <div id="myResultsList">
+                    <!-- Dữ liệu sẽ được điền động -->
+                </div>
+            </div>
+        </div>
+        <div class="content-section" id="statistics">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Thống kê học tập</h3>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div class="stat-box">
+                        <div class="stat-number" id="statTotalTests">0</div>
+                        <div class="stat-label">Tổng số bài thi</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #2ed573, #17c0eb);">
+                        <div class="stat-number" id="statAvgScore">0</div>
+                        <div class="stat-label">Điểm trung bình</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #ffa502, #ff6348);">
+                        <div class="stat-number" id="statHighestScore">0</div>
+                        <div class="stat-label">Điểm cao nhất</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #a29bfe, #6c5ce7);">
+                        <div class="stat-number" id="statTotalClasses">0</div>
+                        <div class="stat-label">Số lớp tham gia</div>
+                    </div>
+                </div>
+
+                <div id="statisticsCharts">
+                    <p style="text-align: center; color: #666; padding: 40px 0;">📊 Biểu đồ thống kê sẽ được hiển thị
+                        khi có dữ liệu</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="ranking">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;" id="rankingTitle">Bảng xếp hạng <span id="rankingClassName">Đang
+                        tải...</span></h3>
+                <p style="color: #666; margin-bottom: 20px;" id="rankingTotal">Tổng số học sinh: Đang tải...</p>
+
+                <!-- Thông tin vị trí của học sinh đang đăng nhập -->
+                <div id="currentUserRank"
+                    style="margin-bottom: 30px; padding: 20px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: white;">
+                    <h4 style="margin-bottom: 15px; color: white;">📍 Vị trí của bạn</h4>
+                    <div id="currentUserRankInfo" style="font-size: 18px;">
+                        Đang tải...
+                    </div>
+                </div>
+
+                <!-- Bảng xếp hạng -->
+                <table class="ranking-table" id="rankingTable">
+                    <thead>
+                        <tr>
+                            <th>Hạng</th>
+                            <th>Họ tên</th>
+                            <th>MSSV</th>
+                            <th>Điểm TB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu sẽ được điền động -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section" id="create-practice">
+            <div class="card">
+                <h2 class="card-title">✨ Tạo đề luyện tập bằng AI</h2>
+                <p style="color: #666; margin-bottom: 20px;">Chọn tài liệu từ giáo viên đã upload (PDF, Word, Excel,
+                    PowerPoint, Text...) và nhập prompt để AI tạo đề thi luyện tập cho bạn. Số câu hỏi có thể tạo phụ
+                    thuộc vào độ dài nội dung tài liệu.</p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">📚 Chọn tài liệu từ giáo
+                        viên:</label>
+                    <select id="practiceMaterialSelect" class="input-field" style="width: 100%; padding: 12px;">
+                        <option value="">-- Chọn tài liệu --</option>
+                    </select>
+                    <small style="color: #718096; font-size: 12px; margin-top: 5px; display: block;">
+                        💡 Hiển thị tất cả tài liệu (PDF, Word, Excel, PowerPoint, Text...) từ các giáo viên của bạn. Số
+                        câu hỏi có thể tạo được hiển thị bên cạnh tên file.
+                    </small>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">📝 Mô tả đề thi bạn
+                        muốn:</label>
+                    <textarea id="practicePrompt" class="input-field" rows="4"
+                        placeholder="VD: Tạo 15 câu hỏi trắc nghiệm về biến và kiểu dữ liệu trong C#, độ khó trung bình"></textarea>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">⚙️ Tùy chọn:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label>Số câu hỏi:</label>
+                            <input type="number" id="practiceNumQuestions" class="input-field" value="10" min="1"
+                                max="200" placeholder="Chọn số câu hỏi bạn muốn">
+                        </div>
+                        <div>
+                            <label>Độ khó:</label>
+                            <select id="practiceDifficulty" class="input-field">
+                                <option value="Easy">Dễ</option>
+                                <option value="Medium" selected>Trung bình</option>
+                                <option value="Hard">Khó</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="createPracticeExamWithAI()" id="practiceCreateBtn"
+                    style="width: 100%; padding: 15px; font-size: 16px;">
+                    🤖 Tạo đề luyện tập bằng AI
+                </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="practiceLoading"
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; flex-direction: column;">
+                <div
+                    style="background: white; border-radius: 15px; padding: 40px; text-align: center; max-width: 400px;">
+                    <div class="practice-spinner"
+                        style="width: 50px; height: 50px; border: 5px solid #e1e8ed; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;">
+                    </div>
+                    <p style="color: #2d3748; font-size: 18px; font-weight: 600; margin: 0;">
+                        🤖 AI đang tạo đề thi...
+                    </p>
+                    <p style="color: #718096; margin-top: 10px; font-size: 14px;">
+                        Vui lòng đợi trong giây lát
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="my-practice">
+            <div class="card">
+                <h2 class="card-title">📚 Đề luyện tập của tôi</h2>
+                <div id="practiceExamsList">
+                    <p style="text-align: center; color: #666; padding: 40px;">⏳ Đang tải...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="complaints">
+            <div class="card">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h3 style="margin: 0;">⚖️ Khiếu nại điểm</h3>
+                    <button class="btn btn-secondary" onclick="loadComplaints()" style="padding: 10px 20px;">
+                        🔄 Làm mới
+                    </button>
+                </div>
+
+                <div
+                    style="background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f56565;">
+                    <p style="margin: 0; color: #742a2a; font-size: 14px;">
+                        <strong>📋 Lưu ý:</strong> Bạn chỉ có thể khiếu nại về các bài thi đã được chấm điểm. Vui lòng
+                        nêu rõ lý do và cung cấp bằng chứng nếu có.
+                    </p>
+                </div>
+
+                <form id="complaintForm" onsubmit="submitComplaint(event)">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">
+                            Chọn bài kiểm tra <span style="color: #f56565;">*</span>
+                        </label>
+                        <select class="input-field" id="complaintSubject" required
+                            style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">-- Chọn bài kiểm tra --</option>
+                            <!-- Dữ liệu sẽ được điền động -->
+                        </select>
+                        <small style="color: #718096; display: block; margin-top: 5px;">
+                            💡 Chỉ hiển thị các bài thi đã được chấm điểm
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">
+                            Lý do khiếu nại <span style="color: #f56565;">*</span>
+                        </label>
+                        <textarea class="input-field" rows="6"
+                            placeholder="Vui lòng nêu rõ lý do khiếu nại của bạn. Ví dụ: Câu hỏi số X, tôi đã trả lời đúng nhưng bị trừ điểm..."
+                            id="complaintReason" required
+                            style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; resize: vertical; min-height: 120px;"></textarea>
+                        <small style="color: #718096; display: block; margin-top: 5px;">
+                            📝 Mô tả chi tiết sẽ giúp giáo viên xử lý nhanh hơn
+                        </small>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn"
+                            style="background: linear-gradient(45deg, #fa709a, #fee140); color: white; flex: 1; min-width: 150px;">
+                            📤 Gửi khiếu nại
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetComplaintForm()"
+                            style="min-width: 100px;">
+                            🔄 Làm mới
+                        </button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e1e8ed;">
+                    <h4 style="margin-bottom: 15px; color: #2d3748; display: flex; align-items: center; gap: 10px;">
+                        📜 Lịch sử khiếu nại
+                        <span id="complaintCount"
+                            style="background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">0</span>
+                    </h4>
+                    <div id="recentComplaints" style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="text-align: center; padding: 40px; color: #718096;">
+                            <p>⏳ Đang tải lịch sử khiếu nại...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal chỉnh sửa thông tin -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Cập nhật thông tin cá nhân</h3>
+                <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
+            </div>
+            <div>
+                <input type="text" class="input-field" id="editFullName" placeholder="Họ và tên" value="">
+                <input type="text" class="input-field" id="editClass" placeholder="Lớp" value="">
+                <select class="input-field" id="editGender"
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: white;">
+                    <option value="">-- Chọn giới tính --</option>
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                </select>
+                <input type="tel" class="input-field" id="editPhone" placeholder="Số điện thoại (VD: 0123456789)"
+                    value="">
+                <input type="date" class="input-field" id="editDob" placeholder="Ngày sinh">
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;"
+                    onclick="saveProfileChanges()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔒 Đổi mật khẩu</h3>
+                <span class="close" onclick="closeModal('changePasswordModal')">&times;</span>
+            </div>
+            <div>
+                <input type="password" class="input-field" placeholder="Mật khẩu hiện tại">
+                <input type="password" class="input-field" placeholder="Mật khẩu mới">
+                <input type="password" class="input-field" placeholder="Xác nhận mật khẩu mới">
+                <button class="btn btn-primary" style="width: 100%;" onclick="changePassword()">Đổi mật khẩu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div class="modal" id="notificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔔 Thông báo</h3>
+                <span class="close" onclick="closeModal('notificationModal')">&times;</span>
+            </div>
+            <div id="notificationList">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="markAllAsRead()">Đánh dấu đã
+                đọc tất cả</button>
+        </div>
+    </div>
+
+    <!-- Exam Code Modal -->
+    <div class="modal" id="examCodeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔐 Nhập mã code bài thi</h3>
+                <span class="close" onclick="closeModal('examCodeModal')">&times;</span>
+            </div>
+            <div>
+                <p style="margin-bottom: 15px; color: #666;">Vui lòng nhập mã code 6 số mà giáo viên đã cung cấp để bắt
+                    đầu làm bài thi.</p>
+                <input type="text" class="input-field" id="examCodeInput" placeholder="Nhập mã code (6 số)"
+                    maxlength="6" pattern="[0-9]{6}"
+                    style="text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold;">
+                <div id="examCodeError" style="color: #ff4757; margin-top: 10px; display: none;"></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="submitExamCode()">Xác
+                    nhận</button>
+            </div>
+        </div>
+    </div>
+    <script src="/client/public/js/config.js"></script>
+    <script src="/client/public/js/api.js"></script>
+    <script src="/client/public/js/student.js"></script>
+    <script src="/client/public/js/student_practice.js"></script>
+    <script src="/client/public/js/scroll-to-top.js"></script>
+</body>
+
+</html>

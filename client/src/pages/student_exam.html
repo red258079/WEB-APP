@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Làm Bài Thi - EDEXIS</title>
+    <link rel="icon" type="image/png" href="/client/public/images/edu.png">
+    <link rel="stylesheet" href="/client/public/css/variables.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="/client/public/js/config.js"></script>
+    <script src="/client/public/js/api.js"></script>
+    <script src="/client/public/js/aiCheatingDetection.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: var(--spacing-lg);
+        }
+
+        .exam-container {
+            max-width: var(--container-max-width);
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+
+        .exam-header {
+            background: var(--primary-gradient);
+            color: var(--white);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .exam-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .timer {
+            font-size: 28px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .timer.warning {
+            background: #ff4757;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .exam-body {
+            padding: 30px;
+        }
+
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .question-nav-btn {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .question-nav-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .question-nav-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .question-nav-btn.answered {
+            background: #26de81;
+            color: white;
+            border-color: #26de81;
+        }
+
+        .question-content {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .question-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .meta-badge {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: white;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .textarea-answer {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-gradient-hover);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: var(--success-dark);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+            color: var(--white);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(45deg, #ff6348, #ff4757);
+        }
+
+        .btn-secondary {
+            background: var(--gray-500);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-600);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .webcam-container {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            width: 200px;
+            border: 3px solid var(--primary-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            z-index: var(--z-fixed);
+        }
+
+        #localVideo {
+            width: 100%;
+            display: block;
+        }
+
+        .webcam-status {
+            background: var(--success-color);
+            color: var(--white);
+            padding: var(--spacing-xs);
+            text-align: center;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .warning-banner {
+            background: var(--danger-color);
+            color: var(--white);
+            padding: var(--spacing-md);
+            text-align: center;
+            font-weight: 600;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: var(--z-tooltip);
+            display: none;
+        }
+
+        .warning-banner.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left: 5px solid var(--danger-color);
+        }
+
+        .toast.success {
+            border-left: 5px solid var(--success-color);
+        }
+
+        .toast.warning {
+            border-left: 5px solid var(--warning-color);
+        }
+
+        /* ============================================
+           RESPONSIVE STYLES
+           ============================================ */
+
+        /* Mobile (0px - 575px) */
+        @media (max-width: 575.98px) {
+            body {
+                padding: var(--spacing-sm);
+            }
+
+            .exam-container {
+                border-radius: var(--radius-lg);
+            }
+
+            .exam-header {
+                flex-direction: column;
+                text-align: center;
+                padding: var(--spacing-md);
+                gap: var(--spacing-sm);
+            }
+
+            .exam-title {
+                font-size: var(--font-size-lg);
+                line-height: 1.3;
+            }
+
+            .exam-header>div:first-child {
+                width: 100%;
+            }
+
+            .exam-header>div:first-child>div:last-child {
+                font-size: 12px;
+                margin-top: 5px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .timer {
+                font-size: 20px;
+                min-width: auto;
+                width: 100%;
+                padding: var(--spacing-sm) var(--spacing-md);
+            }
+
+            .exam-body {
+                padding: var(--spacing-md);
+            }
+
+            .question-nav {
+                gap: 6px;
+                margin-bottom: var(--spacing-lg);
+                justify-content: center;
+            }
+
+            .question-nav-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+                padding: 0;
+            }
+
+            .question-content {
+                padding: var(--spacing-md);
+            }
+
+            .question-text {
+                font-size: var(--font-size-base);
+            }
+
+            .webcam-container {
+                width: 120px;
+                bottom: var(--spacing-sm);
+                right: var(--spacing-sm);
+            }
+
+            .webcam-status {
+                font-size: var(--font-size-xs);
+                padding: var(--spacing-xs);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: var(--font-size-sm);
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: var(--spacing-lg);
+                max-height: 90vh;
+            }
+
+            .option {
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: var(--font-size-sm);
+            }
+
+            .textarea-answer {
+                min-height: 120px;
+                font-size: var(--font-size-sm);
+            }
+        }
+
+        /* Large Mobile / Small Tablet (576px - 767px) */
+        @media (min-width: 576px) and (max-width: 767.98px) {
+            .exam-header {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--spacing-sm);
+            }
+
+            .webcam-container {
+                width: 150px;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+
+            .action-buttons .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        /* Tablet (768px - 991px) */
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .exam-container {
+                max-width: 100%;
+            }
+
+            .webcam-container {
+                width: 180px;
+            }
+        }
+
+        /* Desktop (992px+) */
+        @media (min-width: 992px) {
+            .exam-container {
+                max-width: 1200px;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            z-index: 1;
+        }
+
+        .unanswered-list {
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .unanswered-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #ffa502;
+            font-size: 14px;
+        }
+
+        @media (max-width: 575.98px) {
+            .modal-content {
+                padding: 20px 15px;
+                width: 95%;
+                max-height: 85vh;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .unanswered-list {
+                max-height: 200px;
+                font-size: 13px;
+            }
+
+            .unanswered-item {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            .close-btn {
+                top: 5px;
+                right: 10px;
+                font-size: 20px;
+            }
+
+            .modal-content .btn {
+                width: 100%;
+                margin-top: 10px;
+                padding: 12px;
+            }
+        }
+
+        /* Log Panel Styles */
+        .log-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 600px;
+            max-height: 85vh;
+            background: rgba(0, 0, 0, 0.98);
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .log-panel.visible {
+            display: flex;
+        }
+
+        .log-panel-header {
+            background: #0f0;
+            color: #000;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            cursor: move;
+        }
+
+        .log-panel-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-panel-btn {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .log-panel-btn:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        .log-panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            max-height: calc(80vh - 60px);
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            padding: 2px 4px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .log-entry.error {
+            color: #f00;
+        }
+
+        .log-entry.warn {
+            color: #ff0;
+        }
+
+        .log-entry.info {
+            color: #0ff;
+        }
+
+        .log-entry.debug {
+            color: #0f0;
+        }
+
+        .log-timestamp {
+            color: #888;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="warning-banner" id="warningBanner"></div>
+
+    <!-- Log Panel -->
+    <div class="log-panel" id="logPanel">
+        <div class="log-panel-header" id="logPanelHeader">
+            <span>📋 Debug Log (Nhấn Ctrl+Shift+L để mở/đóng)</span>
+            <div class="log-panel-controls">
+                <button class="log-panel-btn" onclick="clearLogs()">Clear</button>
+                <button class="log-panel-btn" onclick="copyLogs()">Copy</button>
+                <button class="log-panel-btn" onclick="toggleLogPanel()">✕</button>
+            </div>
+        </div>
+        <div class="log-panel-content" id="logPanelContent"></div>
+    </div>
+
+    <div class="exam-container">
+        <div class="exam-header">
+            <div>
+                <div class="exam-title" id="examTitle">Đang tải...</div>
+                <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">
+                    <span id="questionProgress">0/0 câu</span> •
+                    <span id="tabSwitchWarning">Chuyển tab: 0/3</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- Đã bỏ nút 📋 Log, chỉ giữ đồng hồ -->
+                <div class="timer" id="timer">00:00:00</div>
+            </div>
+        </div>
+
+        <div class="exam-body">
+            <div class="question-nav" id="questionNav"></div>
+
+            <div class="question-content">
+                <div id="questionContainer">
+                    <p style="text-align: center; color: #666;">⏳ Đang tải câu hỏi...</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()">← Câu trước</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Câu sau →</button>
+                <button class="btn btn-success" id="submitBtn" onclick="submitExam()">📤 Nộp bài</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="webcam-container">
+        <video id="localVideo" autoplay muted></video>
+        <div class="webcam-status" id="webcamStatus">🔴 Đang kết nối...</div>
+    </div>
+
+    <!-- Modal cảnh báo câu hỏi chưa làm -->
+    <div id="unansweredWarningModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeUnansweredModal()">&times;</span>
+            <h2>⚠️ Cảnh báo</h2>
+            <div id="unansweredWarningContent" style="margin: 20px 0;">
+                <!-- Nội dung sẽ được điền động -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeUnansweredModal()">Quay lại làm bài</button>
+                <button class="btn btn-warning" onclick="confirmSubmitWithUnanswered()">Vẫn nộp bài</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="submitModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>🎉 Nộp bài thành công!</h2>
+            <p>Điểm của bạn: <span id="modalScore" style="font-weight: bold; font-size: 24px;">--/--</span></p>
+            <p id="modalMessage"></p>
+            <button class="btn btn-primary" onclick="goToResult()">Xem chi tiết kết quả</button>
+        </div>
+    </div>
+
+    <script>
+        // ⭐ LOG PANEL SYSTEM - Lưu tất cả log để không bị mất khi reload
+        const logStorage = {
+            logs: [],
+            maxLogs: 1000,
+
+            init() {
+                // Load logs từ localStorage nếu có
+                try {
+                    const saved = localStorage.getItem('debug_logs');
+                    if (saved) {
+                        this.logs = JSON.parse(saved);
+                        this.renderLogs();
+                    }
+                } catch (e) {
+                    console.error('Lỗi load logs:', e);
+                }
+
+                // Override console methods
+                this.overrideConsole();
+
+                // Keyboard shortcut để toggle log panel (CHỈ dùng Ctrl+Shift+L, KHÔNG đụng F12)
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                        e.preventDefault();
+                        toggleLogPanel();
+                    }
+                });
+            },
+
+            overrideConsole() {
+                const originalLog = console.log;
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                const originalInfo = console.info;
+
+                const addLog = (type, args) => {
+                    const timestamp = new Date().toLocaleTimeString('vi-VN');
+                    const message = args.map(arg => {
+                        if (typeof arg === 'object') {
+                            try {
+                                return JSON.stringify(arg, null, 2);
+                            } catch (e) {
+                                return String(arg);
+                            }
+                        }
+                        return String(arg);
+                    }).join(' ');
+
+                    const logEntry = {
+                        type: type,
+                        timestamp: timestamp,
+                        message: message,
+                        fullMessage: args.map(arg => {
+                            if (typeof arg === 'object') {
+                                try {
+                                    return JSON.stringify(arg, null, 2);
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }
+                            return String(arg);
+                        }).join(' ')
+                    };
+
+                    this.logs.push(logEntry);
+                    if (this.logs.length > this.maxLogs) {
+                        this.logs.shift();
+                    }
+
+                    // Lưu vào localStorage
+                    try {
+                        localStorage.setItem('debug_logs', JSON.stringify(this.logs));
+                    } catch (e) {
+                        // localStorage đầy, xóa logs cũ
+                        this.logs = this.logs.slice(-500);
+                        localStorage.setItem('debug_logs', JSON.stringify(this.logs));
+                    }
+
+                    // Render vào UI
+                    this.renderLogs();
+
+                    // Gọi original console method
+                    return { type, args };
+                };
+
+                console.log = function (...args) {
+                    const result = addLog('debug', args);
+                    originalLog.apply(console, args);
+                };
+
+                console.error = function (...args) {
+                    const result = addLog('error', args);
+                    originalError.apply(console, args);
+                };
+
+                console.warn = function (...args) {
+                    const result = addLog('warn', args);
+                    originalWarn.apply(console, args);
+                };
+
+                console.info = function (...args) {
+                    const result = addLog('info', args);
+                    originalInfo.apply(console, args);
+                };
+            },
+
+            renderLogs() {
+                const panel = document.getElementById('logPanelContent');
+                if (!panel) return;
+
+                panel.innerHTML = '';
+                this.logs.forEach(log => {
+                    const entry = document.createElement('div');
+                    entry.className = `log-entry ${log.type}`;
+                    entry.innerHTML = `<span class="log-timestamp">[${log.timestamp}]</span>${log.message}`;
+                    panel.appendChild(entry);
+                });
+
+                // Auto scroll to bottom
+                panel.scrollTop = panel.scrollHeight;
+            },
+
+            clear() {
+                this.logs = [];
+                localStorage.removeItem('debug_logs');
+                this.renderLogs();
+            },
+
+            copy() {
+                const text = this.logs.map(log =>
+                    `[${log.timestamp}] [${log.type.toUpperCase()}] ${log.fullMessage}`
+                ).join('\n');
+
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ Đã copy log vào clipboard!');
+                }).catch(err => {
+                    console.error('Lỗi copy:', err);
+                });
+            }
+        };
+
+        function toggleLogPanel() {
+            const panel = document.getElementById('logPanel');
+            if (panel) {
+                panel.classList.toggle('visible');
+            }
+        }
+
+        function clearLogs() {
+            logStorage.clear();
+        }
+
+        function copyLogs() {
+            logStorage.copy();
+        }
+
+        // Khởi tạo log system ngay khi script load
+        logStorage.init();
+
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+
+        let socket;
+        let examData = null;
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let tabSwitchCount = 0;
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let aiDetection = null; // AI cheating detection instance
+
+        // QUAN TRỌNG: Bắt lỗi unhandled promise rejection để tránh reload
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('🔍 [DEBUG] [UnhandledRejection] ⚠️ PHÁT HIỆN UNHANDLED REJECTION!');
+            console.error('🔍 [DEBUG] [UnhandledRejection] Reason:', event.reason);
+            console.error('🔍 [DEBUG] [UnhandledRejection] Promise:', event.promise);
+            console.error('🔍 [DEBUG] [UnhandledRejection] Stack trace:', new Error().stack);
+
+            // Log chi tiết error object
+            if (event.reason instanceof Error) {
+                console.error('🔍 [DEBUG] [UnhandledRejection] Error details:', {
+                    message: event.reason.message,
+                    name: event.reason.name,
+                    stack: event.reason.stack,
+                    cause: event.reason.cause
+                });
+            }
+
+            // Kiểm tra xem có phải từ AI Detection không
+            const reasonStr = String(event.reason || '');
+            const reasonStack = event.reason?.stack || '';
+            const isFromAIDetection = reasonStr.includes('AI Detection') ||
+                reasonStr.includes('aiCheatingDetection') ||
+                reasonStack.includes('aiCheatingDetection') ||
+                reasonStack.includes('handleViolation') ||
+                reasonStack.includes('_recordViolationVideo') ||
+                reasonStack.includes('logCheating') ||
+                reasonStack.includes('onViolationDetected');
+
+            if (isFromAIDetection) {
+                console.error('🔍 [DEBUG] [UnhandledRejection] ⚠️⚠️⚠️ LỖI TỪ AI DETECTION! ⚠️⚠️⚠️');
+            }
+
+            // Ngăn không cho trình duyệt reload
+            event.preventDefault();
+            console.log('🔍 [DEBUG] [UnhandledRejection] Đã preventDefault - không reload');
+            // Chỉ log lỗi, không làm gì khác
+            return false; // Ngăn không cho trình duyệt xử lý lỗi
+        });
+
+        // QUAN TRỌNG: Bắt lỗi JavaScript để tránh reload
+        window.addEventListener('error', (event) => {
+            console.error('🔍 [DEBUG] [GlobalError] ⚠️ PHÁT HIỆN JAVASCRIPT ERROR!');
+            console.error('🔍 [DEBUG] [GlobalError] Message:', event.message);
+            console.error('🔍 [DEBUG] [GlobalError] Source:', event.filename, 'Line:', event.lineno, 'Col:', event.colno);
+            console.error('🔍 [DEBUG] [GlobalError] Error:', event.error);
+            console.error('🔍 [DEBUG] [GlobalError] Stack trace:', event.error?.stack);
+
+            // Kiểm tra xem có phải từ AI Detection không
+            const isFromAIDetection = event.filename?.includes('aiCheatingDetection') ||
+                event.error?.stack?.includes('aiCheatingDetection') ||
+                event.error?.stack?.includes('handleViolation') ||
+                event.error?.stack?.includes('_recordViolationVideo');
+
+            if (isFromAIDetection) {
+                console.error('🔍 [DEBUG] [GlobalError] ⚠️⚠️⚠️ LỖI TỪ AI DETECTION! ⚠️⚠️⚠️');
+            }
+
+            // Ngăn không cho trình duyệt reload
+            event.preventDefault();
+            console.log('🔍 [DEBUG] [GlobalError] Đã preventDefault - không reload');
+            return false; // Ngăn không cho trình duyệt xử lý lỗi
+        });
+
+        // QUAN TRỌNG: Ngăn không cho trình duyệt tự động reload khi có lỗi
+        const originalReload = window.location.reload;
+
+        // Helper function để track tất cả active timeouts
+        const activeTimeouts = new Map();
+        const originalSetTimeout = window.setTimeout;
+        window.setTimeout = function (...args) {
+            const timeoutId = originalSetTimeout.apply(this, args);
+            const delay = args[1] || 0;
+            activeTimeouts.set(timeoutId, {
+                delay: delay,
+                createdAt: Date.now(),
+                stack: new Error().stack
+            });
+            console.log(`🔍 [Timeout] Created timeout ID: ${timeoutId}, delay: ${delay}ms, active count: ${activeTimeouts.size}`);
+            // Auto remove sau khi timeout chạy
+            originalSetTimeout(() => {
+                activeTimeouts.delete(timeoutId);
+            }, delay + 100);
+            return timeoutId;
+        };
+
+        const originalClearTimeout = window.clearTimeout;
+        window.clearTimeout = function (timeoutId) {
+            if (activeTimeouts.has(timeoutId)) {
+                console.log(`🔍 [Timeout] Cleared timeout ID: ${timeoutId}`);
+                activeTimeouts.delete(timeoutId);
+            }
+            return originalClearTimeout.apply(this, arguments);
+        };
+
+        function getAllActiveTimeouts() {
+            const now = Date.now();
+            return Array.from(activeTimeouts.entries()).map(([id, info]) => ({
+                id: id,
+                delay: info.delay,
+                elapsed: now - info.createdAt,
+                remaining: Math.max(0, info.delay - (now - info.createdAt)),
+                stack: info.stack
+            }));
+        }
+
+        window.location.reload = function (forcedReload) {
+            const reloadId = `reload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.error(`🔍 [DEBUG] [${reloadId}] ⚠️⚠️⚠️ PHÁT HIỆN ATTEMPT TO RELOAD PAGE! ⚠️⚠️⚠️`);
+            console.error(`🔍 [DEBUG] [${reloadId}] Forced reload:`, forcedReload);
+            console.error(`🔍 [DEBUG] [${reloadId}] Stack trace:`, new Error().stack);
+            console.error(`🔍 [DEBUG] [${reloadId}] Active timeouts:`, getAllActiveTimeouts());
+            console.warn(`⚠️ [Blocked] Attempt to reload page blocked - ID: ${reloadId}`);
+
+            // Tự động mở log panel khi có attempt reload
+            setTimeout(() => {
+                const panel = document.getElementById('logPanel');
+                if (panel && !panel.classList.contains('visible')) {
+                    panel.classList.add('visible');
+                }
+            }, 100);
+
+            // KHÔNG reload - chỉ log
+            return false;
+        };
+
+        // ⭐ XÓA HOÀN TOÀN beforeunload listener - KHÔNG CẦN THIẾT
+        // Browser sẽ tự động hiển thị popup nếu có beforeunload listener
+        // Thay vào đó, chúng ta block reload bằng cách override window.location.reload (đã có ở trên)
+        // KHÔNG thêm listener này để tránh popup xuất hiện
+
+        // Chỉ log khi có attempt reload (từ window.location.reload override)
+        // KHÔNG dùng beforeunload event
+
+        // ⭐ XÓA unload listener - KHÔNG CẦN THIẾT
+        // unload event có thể trigger khi page reload, gây ra vòng lặp
+        // Chỉ log khi có attempt reload từ window.location.reload override (đã có ở trên)
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!token) {
+                alert('❌ Vui lòng đăng nhập!');
+                window.location.href = './login.html';
+                return;
+            }
+
+            // Kiểm tra URL có attempt_id không (khi reload trang)
+            const urlParams = new URLSearchParams(window.location.search);
+            let attemptIdFromUrl = urlParams.get('attempt_id');
+            let examIdFromUrl = urlParams.get('exam_id');
+
+            // QUAN TRỌNG: Clear answers cũ nếu attempt_id khác với attempt_id trong localStorage
+            // Đảm bảo mỗi attempt chỉ load answers của chính nó
+            const savedExamInfo = localStorage.getItem('current_exam');
+            if (savedExamInfo) {
+                try {
+                    const savedExam = JSON.parse(savedExamInfo);
+                    // Nếu attempt_id trong localStorage khác với attempt_id trong URL, clear localStorage
+                    if (savedExam.attempt_id && attemptIdFromUrl &&
+                        String(savedExam.attempt_id) !== String(attemptIdFromUrl)) {
+                        console.warn('⚠️ [Security] Attempt ID khác nhau, clear localStorage cũ');
+                        localStorage.removeItem('exam_answers');
+                        localStorage.removeItem('current_exam');
+                    }
+                } catch (e) {
+                    console.error('❌ Lỗi parse savedExamInfo:', e);
+                }
+            }
+
+            // Kiểm tra localStorage trước để lấy attempt_id và exam_id
+            const examInfo = localStorage.getItem('current_exam');
+            let attemptId = attemptIdFromUrl;
+            let examId = examIdFromUrl;
+
+            // Xử lý trường hợp exam_id hoặc attempt_id là "null" (string) hoặc null
+            if (examId === 'null' || examId === null || !examId) {
+                examId = null;
+            }
+            if (attemptId === 'null' || attemptId === null || !attemptId) {
+                attemptId = null;
+            }
+
+            // Nếu URL không có hoặc là null, lấy từ localStorage
+            if (!attemptId || !examId) {
+                if (examInfo) {
+                    try {
+                        const savedExamData = JSON.parse(examInfo);
+                        if (savedExamData.attempt_id && savedExamData.exam_id) {
+                            attemptId = savedExamData.attempt_id;
+                            examId = savedExamData.exam_id;
+
+                            // Cập nhật URL ngay lập tức để có attempt_id và exam_id hợp lệ
+                            // CHỈ cập nhật nếu URL hiện tại khác với URL mới (tránh trigger reload không cần thiết)
+                            const currentUrl = new URL(window.location.href);
+                            const currentExamId = currentUrl.searchParams.get('exam_id');
+                            const currentAttemptId = currentUrl.searchParams.get('attempt_id');
+
+                            if (currentExamId !== String(examId) || currentAttemptId !== String(attemptId)) {
+                                const newUrl = new URL(window.location.href);
+                                newUrl.searchParams.set('exam_id', examId);
+                                newUrl.searchParams.set('attempt_id', attemptId);
+                                window.history.replaceState({}, '', newUrl);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('❌ Lỗi parse examInfo từ localStorage:', e);
+                    }
+                }
+            }
+
+            // Kiểm tra lại sau khi lấy từ localStorage
+            if (!attemptId || !examId || examId === 'null' || attemptId === 'null') {
+                // Nếu vẫn không có, thử lấy từ localStorage một lần nữa
+                if (examInfo) {
+                    try {
+                        const savedExamData = JSON.parse(examInfo);
+                        if (savedExamData.attempt_id && savedExamData.exam_id) {
+                            attemptId = savedExamData.attempt_id;
+                            examId = savedExamData.exam_id;
+                            console.log('✅ Đã lấy exam_id và attempt_id từ localStorage:', { examId, attemptId });
+
+                            // ⭐ CẬP NHẬT URL NGAY LẬP TỨC nếu URL có exam_id=null
+                            const currentUrl = new URL(window.location.href);
+                            const currentExamId = currentUrl.searchParams.get('exam_id');
+                            const currentAttemptId = currentUrl.searchParams.get('attempt_id');
+
+                            if (currentExamId === 'null' || currentExamId === null ||
+                                currentAttemptId === 'null' || currentAttemptId === null ||
+                                currentExamId !== String(examId) || currentAttemptId !== String(attemptId)) {
+                                const newUrl = new URL(window.location.href);
+                                newUrl.searchParams.set('exam_id', examId);
+                                newUrl.searchParams.set('attempt_id', attemptId);
+                                console.log('✅ Cập nhật URL từ null thành:', newUrl.href);
+                                window.history.replaceState({}, '', newUrl);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('❌ Lỗi parse examInfo:', e);
+                    }
+                }
+
+                // ⭐ NẾU VẪN KHÔNG CÓ exam_id hoặc attempt_id, REDIRECT VỀ DASHBOARD
+                if (!attemptId || !examId || examId === 'null' || attemptId === 'null') {
+                    console.error('❌ Không tìm thấy exam_id hoặc attempt_id hợp lệ!');
+                    console.error('❌ examId:', examId, 'attemptId:', attemptId);
+                    console.error('❌ examInfo từ localStorage:', examInfo);
+                    alert('❌ Không tìm thấy thông tin bài thi! Vui lòng quay lại trang chủ.');
+                    window.location.href = './student_dashboard.html';
+                    return;
+                }
+
+                // Nếu vẫn không có, dùng localStorage để load exam
+                if (!attemptId || !examId) {
+                    if (examInfo) {
+                        try {
+                            examData = JSON.parse(examInfo);
+                            // QUAN TRỌNG: Reset answers và chỉ load từ localStorage nếu attempt_id VÀ student_id khớp
+                            answers = {};
+                            const savedAttemptId = localStorage.getItem('current_attempt_id');
+                            const savedStudentId = localStorage.getItem('current_student_id');
+
+                            // ⭐ SECURITY FIX: Chỉ load answers từ localStorage nếu CẢ attempt_id VÀ student_id khớp
+                            if (examData.attempt_id && savedAttemptId &&
+                                String(examData.attempt_id) === String(savedAttemptId) &&
+                                userId && savedStudentId && String(userId) === String(savedStudentId)) {
+                                const savedAnswers = localStorage.getItem('exam_answers');
+                                if (savedAnswers) {
+                                    try {
+                                        answers = JSON.parse(savedAnswers);
+                                        console.log('✅ [Security] Loaded answers - student_id & attempt_id matched');
+                                    } catch (e) {
+                                        console.error('❌ Lỗi parse saved answers:', e);
+                                        answers = {};
+                                    }
+                                }
+                            } else {
+                                // Nếu attempt_id hoặc student_id không khớp, clear localStorage
+                                console.warn('⚠️ [Security] Student ID hoặc Attempt ID không khớp, clear answers cũ');
+                                console.warn(`   userId: ${userId}, savedStudentId: ${savedStudentId}`);
+                                console.warn(`   attemptId: ${examData.attempt_id}, savedAttemptId: ${savedAttemptId}`);
+                                localStorage.removeItem('exam_answers');
+                                localStorage.removeItem('current_attempt_id');
+                                localStorage.removeItem('current_student_id');
+                                answers = {};
+                            }
+
+                            // Cập nhật URL nếu có attempt_id và exam_id
+                            // CHỈ cập nhật nếu URL hiện tại khác với URL mới (tránh trigger reload không cần thiết)
+                            if (examData.attempt_id && examData.exam_id) {
+                                const currentUrl = new URL(window.location.href);
+                                const currentExamId = currentUrl.searchParams.get('exam_id');
+                                const currentAttemptId = currentUrl.searchParams.get('attempt_id');
+
+                                if (currentExamId !== String(examData.exam_id) || currentAttemptId !== String(examData.attempt_id)) {
+                                    const newUrl = new URL(window.location.href);
+                                    newUrl.searchParams.set('exam_id', examData.exam_id);
+                                    newUrl.searchParams.set('attempt_id', examData.attempt_id);
+                                    window.history.replaceState({}, '', newUrl);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('❌ Lỗi parse examInfo:', e);
+                            alert('❌ Không tìm thấy thông tin bài thi! Vui lòng quay lại trang chủ.');
+                            window.location.href = './student_dashboard.html';
+                            return;
+                        }
+                    } else {
+                        alert('❌ Không tìm thấy thông tin bài thi! Vui lòng quay lại trang chủ.');
+                        window.location.href = './student_dashboard.html';
+                        return;
+                    }
+                }
+            }
+
+            // ⭐ ĐẢM BẢO examData ĐƯỢC SET ĐÚNG TRƯỚC KHI TIẾP TỤC
+            if (!examData || !examData.exam_id || !examData.attempt_id) {
+                // Nếu chưa có examData, tạo từ examId và attemptId
+                if (examId && attemptId && examId !== 'null' && attemptId !== 'null') {
+                    examData = {
+                        exam_id: parseInt(examId),
+                        attempt_id: parseInt(attemptId)
+                    };
+                    console.log('✅ Đã tạo examData từ URL:', examData);
+                } else if (examInfo) {
+                    // Nếu vẫn không có, load từ localStorage
+                    try {
+                        examData = JSON.parse(examInfo);
+                        console.log('✅ Đã load examData từ localStorage:', examData);
+                    } catch (e) {
+                        console.error('❌ Lỗi parse examInfo từ localStorage:', e);
+                        alert('❌ Không tìm thấy thông tin bài thi! Vui lòng quay lại trang chủ.');
+                        window.location.href = './student_dashboard.html';
+                        return;
+                    }
+                } else {
+                    alert('❌ Không tìm thấy thông tin bài thi! Vui lòng quay lại trang chủ.');
+                    window.location.href = './student_dashboard.html';
+                    return;
+                }
+            }
+
+            if (attemptId && examId && examId !== 'null' && attemptId !== 'null') {
+                // Reload trang - cần load lại attempt từ server để lấy start_time và đáp án đã lưu
+                try {
+                    const attemptData = await apiGet(`/api/student/exams/${examId}/attempt/${attemptId}`);
+
+                    if (attemptData && attemptData.attempt) {
+                        // Cập nhật examData với start_time từ server
+                        examData = {
+                            ...attemptData.exam,
+                            attempt_id: parseInt(attemptId),
+                            start_time: attemptData.attempt.start_time,
+                            questions: attemptData.questions || []
+                        };
+
+                        // QUAN TRỌNG: Reset answers object để tránh dùng answers cũ từ attempt khác
+                        answers = {};
+
+                        // Khôi phục đáp án đã chọn từ server (CHỈ từ server, không từ localStorage)
+                        if (attemptData.questions) {
+                            attemptData.questions.forEach(q => {
+                                if (q.saved_answer !== null && q.saved_answer !== undefined) {
+                                    if (q.question_type === 'MultipleChoice') {
+                                        // MultipleChoice có thể có nhiều đáp án
+                                        answers[q.question_id] = Array.isArray(q.saved_answer)
+                                            ? q.saved_answer.map(a => String(a)) // Convert to string để so sánh
+                                            : [String(q.saved_answer)];
+                                    } else {
+                                        // SingleChoice hoặc TextAnswer - convert to string để so sánh
+                                        answers[q.question_id] = String(q.saved_answer);
+                                    }
+                                }
+                            });
+                        }
+
+                        // ⭐ SECURITY FIX: Lưu lại vào localStorage với CẢ attempt_id VÀ student_id
+                        localStorage.setItem('current_exam', JSON.stringify(examData));
+                        localStorage.setItem('exam_answers', JSON.stringify(answers));
+                        localStorage.setItem('current_attempt_id', String(attemptId));
+                        localStorage.setItem('current_student_id', String(userId));
+                        console.log('✅ [Security] Saved answers with student_id:', userId);
+                    } else {
+                        throw new Error('Không tìm thấy attempt');
+                    }
+                } catch (error) {
+                    console.error('❌ [Reload] Lỗi load attempt:', error);
+                    // Fallback: dùng localStorage
+                    if (examInfo) {
+                        examData = JSON.parse(examInfo);
+                        // Khôi phục answers từ localStorage nếu có
+                        const savedAnswers = localStorage.getItem('exam_answers');
+                        if (savedAnswers) {
+                            try {
+                                answers = JSON.parse(savedAnswers);
+                            } catch (e) {
+                                console.error('❌ Lỗi parse saved answers:', e);
+                            }
+                        }
+                    } else {
+                        alert('❌ Không thể load lại bài thi!');
+                        window.location.href = './student_dashboard.html';
+                        return;
+                    }
+                }
+            } else {
+                // Lần đầu vào trang - lấy từ localStorage
+                if (!examInfo) {
+                    alert('❌ Không tìm thấy thông tin bài thi!');
+                    window.location.href = './student_dashboard.html';
+                    return;
+                }
+                examData = JSON.parse(examInfo);
+
+                // QUAN TRỌNG: Reset answers object và chỉ load từ localStorage nếu attempt_id VÀ student_id khớp
+                answers = {};
+                const savedAttemptId = localStorage.getItem('current_attempt_id');
+                const savedStudentId = localStorage.getItem('current_student_id');
+
+                // ⭐ SECURITY FIX: Chỉ load answers từ localStorage nếu CẢ attempt_id VÀ student_id khớp
+                if (examData.attempt_id && savedAttemptId &&
+                    String(examData.attempt_id) === String(savedAttemptId) &&
+                    userId && savedStudentId && String(userId) === String(savedStudentId)) {
+                    const savedAnswers = localStorage.getItem('exam_answers');
+                    if (savedAnswers) {
+                        try {
+                            answers = JSON.parse(savedAnswers);
+                            console.log('✅ [Security] Loaded answers - student_id & attempt_id matched');
+                        } catch (e) {
+                            console.error('❌ Lỗi parse saved answers:', e);
+                            answers = {};
+                        }
+                    }
+                } else {
+                    // Nếu attempt_id hoặc student_id không khớp, clear localStorage
+                    console.warn('⚠️ [Security] Student ID hoặc Attempt ID không khớp, clear answers cũ');
+                    console.warn(`   userId: ${userId}, savedStudentId: ${savedStudentId}`);
+                    console.warn(`   attemptId: ${examData.attempt_id}, savedAttemptId: ${savedAttemptId}`);
+                    localStorage.removeItem('exam_answers');
+                    localStorage.removeItem('current_attempt_id');
+                    localStorage.removeItem('current_student_id');
+                    answers = {};
+                }
+
+                // Cập nhật URL để có attempt_id và exam_id
+                // CHỈ cập nhật nếu URL hiện tại khác với URL mới (tránh trigger reload không cần thiết)
+                if (examData.attempt_id && examData.exam_id) {
+                    const currentUrl = new URL(window.location.href);
+                    const currentExamId = currentUrl.searchParams.get('exam_id');
+                    const currentAttemptId = currentUrl.searchParams.get('attempt_id');
+
+                    if (currentExamId !== String(examData.exam_id) || currentAttemptId !== String(examData.attempt_id)) {
+                        const newUrl = new URL(window.location.href);
+                        newUrl.searchParams.set('exam_id', examData.exam_id);
+                        newUrl.searchParams.set('attempt_id', examData.attempt_id);
+                        window.history.replaceState({}, '', newUrl);
+                    }
+                }
+            }
+
+            initSocket();
+            initWebcam();
+            initAntiCheating();
+            loadExam();
+            startTimer();
+        });
+
+        function initSocket() {
+            // Sử dụng CONFIG.SOCKET_URL từ config.js
+            socket = io(window.CONFIG?.SOCKET_URL || window.location.origin, {
+                auth: { token }
+            });
+
+            // ⭐ INTERCEPT WEBSOCKET MESSAGES TRỰC TIẾP (low-level)
+            if (socket.io && socket.io.engine && socket.io.engine.transport) {
+                const transport = socket.io.engine.transport;
+                if (transport.socket) {
+                    const originalOnMessage = transport.socket.onmessage;
+                    transport.socket.onmessage = function (event) {
+                        const msgId = `ws_msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        console.log(`🔵 [WebSocket] [${msgId}] Raw message received:`, event.data);
+                        console.log(`🔵 [WebSocket] [${msgId}] Message stack:`, new Error().stack);
+
+                        // ⭐ KIỂM TRA VÀ BLOCK TẤT CẢ MESSAGES CÓ THỂ GÂY RELOAD
+                        let shouldBlock = false;
+                        try {
+                            const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                            if (data && (
+                                data.type === 'reload' ||
+                                data.action === 'reload' ||
+                                data.reload === true ||
+                                data.type === 'redirect' ||
+                                data.action === 'redirect' ||
+                                data.redirect === true ||
+                                data.command === 'reload' ||
+                                data.command === 'redirect'
+                            )) {
+                                console.error(`🔴 [WebSocket] [${msgId}] ⚠️⚠️⚠️ PHÁT HIỆN MESSAGE GÂY RELOAD/REDIRECT - ĐÃ BLOCK!`, data);
+                                shouldBlock = true;
+                            }
+                        } catch (e) {
+                            // Không phải JSON, kiểm tra string
+                            if (typeof event.data === 'string') {
+                                const dataStr = event.data.toLowerCase();
+                                if (dataStr.includes('reload') ||
+                                    dataStr.includes('redirect') ||
+                                    dataStr.includes('location.reload') ||
+                                    dataStr.includes('window.location') ||
+                                    dataStr.includes('location.href')) {
+                                    console.error(`🔴 [WebSocket] [${msgId}] ⚠️⚠️⚠️ PHÁT HIỆN STRING MESSAGE GÂY RELOAD - ĐÃ BLOCK!`, event.data);
+                                    shouldBlock = true;
+                                }
+                            }
+                        }
+
+                        // ⭐ BLOCK MESSAGE NÀY HOÀN TOÀN
+                        if (shouldBlock) {
+                            return; // KHÔNG gọi originalOnMessage
+                        }
+
+                        return originalOnMessage.call(this, event);
+                    };
+                }
+            }
+
+            // ⭐ LOG TẤT CẢ SOCKET EVENTS để debug
+            const socketOriginalEmit = socket.emit.bind(socket);
+            socket.emit = function (event, ...args) {
+                console.log(`🔵 [Socket] Emitting: ${event}`, args);
+                return socketOriginalEmit(event, ...args);
+            };
+
+            socket.on('connect', () => {
+                console.log('🔵 [Socket] Connected');
+                socket.emit('join', `user_${userId}`);
+                socket.emit('join_exam', {
+                    exam_id: examData.exam_id,
+                    attempt_id: examData.attempt_id
+                });
+            });
+
+            // ⭐ LOG TẤT CẢ SOCKET EVENTS NHẬN ĐƯỢC
+            socket.onAny((eventName, ...args) => {
+                const eventId = `socket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                console.log(`🔵 [Socket] [${eventId}] Received event: ${eventName}`, args);
+                console.log(`🔵 [Socket] [${eventId}] Event stack:`, new Error().stack);
+
+                // ⚠️ CẢNH BÁO NẾU EVENT CÓ THỂ GÂY RELOAD
+                if (eventName.includes('reload') || eventName.includes('redirect') || eventName.includes('ban')) {
+                    console.error(`🔴 [Socket] [${eventId}] ⚠️⚠️⚠️ PHÁT HIỆN EVENT CÓ THỂ GÂY RELOAD: ${eventName}`);
+                }
+            });
+
+            // ⭐ INTERCEPT SOCKET.IO INTERNAL MESSAGES (nếu có)
+            const socketOriginalOn = socket.on.bind(socket);
+
+            // Wrap socket.on để log tất cả handlers
+            socket.on = function (eventName, handler) {
+                console.log(`🔵 [Socket] Registering handler for event: ${eventName}`);
+                return socketOriginalOn(eventName, function (...args) {
+                    const handlerId = `handler_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    console.log(`🔵 [Socket] [${handlerId}] Handler called for: ${eventName}`, args);
+                    console.log(`🔵 [Socket] [${handlerId}] Handler stack:`, new Error().stack);
+                    try {
+                        const result = handler.apply(this, args);
+                        console.log(`🔵 [Socket] [${handlerId}] Handler completed`);
+                        return result;
+                    } catch (error) {
+                        console.error(`🔴 [Socket] [${handlerId}] Handler error:`, error);
+                        console.error(`🔴 [Socket] [${handlerId}] Handler error stack:`, error.stack);
+                        throw error;
+                    }
+                });
+            };
+
+            socket.on('exam_banned', (data) => {
+                console.error('🔵 [Socket] exam_banned event received:', data);
+                alert(`⛔ Bạn đã bị cấm thi!\nLý do: ${data.reason}`);
+                window.location.href = './student_dashboard.html';
+            });
+
+            socket.on('points_deducted', (data) => {
+                console.log('🔵 [Socket] points_deducted event received:', data);
+                showToast(`⚠️ Bạn đã bị trừ ${data.points_deducted} điểm!\nLý do: ${data.reason}`, 'warning');
+            });
+
+            socket.on('answerSaved', (data) => {
+                console.log('🔵 [Socket] answerSaved event received:', data);
+                // Đáp án đã được lưu tự động
+            });
+
+            socket.on('disconnect', (reason) => {
+                console.log('🔵 [Socket] Disconnected, reason:', reason);
+            });
+
+            // ⭐ CATCH TẤT CẢ SOCKET ERRORS
+            socket.on('error', (error) => {
+                console.error('🔵 [Socket] Error:', error);
+                console.error('🔵 [Socket] Error stack:', new Error().stack);
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('🔵 [Socket] Connect error:', error);
+                console.error('🔵 [Socket] Connect error stack:', new Error().stack);
+            });
+        }
+
+        async function initWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+
+                const videoElement = document.getElementById('localVideo');
+                videoElement.srcObject = stream;
+                document.getElementById('webcamStatus').textContent = '🟢 Đang giám sát';
+                document.getElementById('webcamStatus').style.background = '#26de81';
+
+                // Lưu attempt_id vào global để AI module có thể dùng
+                window.currentAttemptId = examData.attempt_id;
+                window.examData = examData;
+
+                // Khởi tạo AI detection
+                await initAIDetection(videoElement, stream);
+
+            } catch (error) {
+                console.error('❌ Webcam error:', error);
+                document.getElementById('webcamStatus').textContent = '❌ Lỗi camera';
+                document.getElementById('webcamStatus').style.background = '#ff4757';
+
+                logCheating('WebcamSuspicious', 'Không thể truy cập webcam');
+
+                if (!confirm('❌ Không thể bật camera!\nBạn có muốn tiếp tục?')) {
+                    window.location.href = './student_dashboard.html';
+                }
+            }
+        }
+
+        // Khởi tạo AI phát hiện gian lận
+        async function initAIDetection(videoElement, stream) {
+            try {
+
+                // Tạo instance AI detection
+                aiDetection = new AICheatingDetection({
+                    videoElement: videoElement,
+                    detectionInterval: 3000, // Tăng lên 3 giây để giảm lag
+                    onViolationDetected: async (violation) => {
+                        const callbackId = `callback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        console.warn(`🔍 [DEBUG] [${callbackId}] onViolationDetected START:`, violation);
+                        console.warn(`🔍 [DEBUG] [${callbackId}] Callback stack:`, new Error().stack);
+
+                        try {
+                            // Ghi log vi phạm - KHÔNG await để không block UI
+                            // Chạy trong background, không ảnh hưởng đến việc làm bài
+                            console.log(`🔍 [DEBUG] [${callbackId}] Calling logCheating...`);
+                            const logPromise = logCheating(violation.type, violation.description);
+                            if (logPromise && typeof logPromise.catch === 'function') {
+                                logPromise.catch(logError => {
+                                    console.error(`❌ [DEBUG] [${callbackId}] Lỗi ghi log:`, logError);
+                                    console.error(`❌ [DEBUG] [${callbackId}] Log error stack:`, logError.stack);
+                                    // Không throw error để không ảnh hưởng đến UI
+                                });
+                            }
+                            console.log(`🔍 [DEBUG] [${callbackId}] logCheating đã được gọi (không await)`);
+
+                            // Hiển thị cảnh báo
+                            console.log(`🔍 [DEBUG] [${callbackId}] Calling showWarning...`);
+                            try {
+                                showWarning(`⚠️ Cảnh báo: ${violation.description}`);
+                                console.log(`🔍 [DEBUG] [${callbackId}] showWarning OK`);
+                            } catch (showWarningError) {
+                                console.error(`❌ [DEBUG] [${callbackId}] Lỗi showWarning:`, showWarningError);
+                            }
+
+                            // Gửi socket alert - KHÔNG await để không block
+                            if (socket) {
+                                console.log(`🔍 [DEBUG] [${callbackId}] Sending socket alert...`);
+                                try {
+                                    socket.emit('cheating_alert', {
+                                        exam_id: examData.exam_id,
+                                        attempt_id: examData.attempt_id,
+                                        student_id: userId,
+                                        event_type: violation.type,
+                                        event_description: violation.description
+                                    });
+                                    console.log(`🔍 [DEBUG] [${callbackId}] Socket alert sent OK`);
+                                } catch (socketError) {
+                                    console.warn(`⚠️ [DEBUG] [${callbackId}] Lỗi gửi alert:`, socketError);
+                                    console.warn(`⚠️ [DEBUG] [${callbackId}] Socket error stack:`, socketError.stack);
+                                }
+                            } else {
+                                console.warn(`⚠️ [DEBUG] [${callbackId}] Socket không có`);
+                            }
+
+                            console.log(`🔍 [DEBUG] [${callbackId}] onViolationDetected END`);
+                        } catch (callbackError) {
+                            console.error(`❌ [DEBUG] [${callbackId}] Lỗi trong onViolationDetected (sync):`, callbackError);
+                            console.error(`❌ [DEBUG] [${callbackId}] Callback error stack:`, callbackError.stack);
+                            // KHÔNG throw - chỉ log
+                        }
+                    },
+                    onVideoReady: () => {
+                    }
+                });
+
+                // Load AI models (có thể mất vài giây)
+                const modelsLoaded = await aiDetection.initialize();
+
+                if (modelsLoaded) {
+                    // Bắt đầu phát hiện với AI models
+                    await aiDetection.startDetection(stream);
+                    document.getElementById('webcamStatus').textContent = '🤖 AI Đang giám sát';
+                } else {
+                    // Fallback: dùng phát hiện đơn giản
+                    await aiDetection.startDetection(stream);
+                    document.getElementById('webcamStatus').textContent = '📹 Đang giám sát';
+                }
+
+            } catch (error) {
+                console.error('❌ Lỗi khởi tạo AI detection:', error);
+                // Tiếp tục với phát hiện cơ bản
+            }
+        }
+
+        function initAntiCheating() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    tabSwitchCount++;
+                    updateTabSwitchWarning();
+                    logCheating('TabSwitch', `Chuyển tab lần ${tabSwitchCount}`);
+
+                    showWarning(`⚠️ Cảnh báo: Không được chuyển tab! (${tabSwitchCount}/3)`);
+
+                    if (tabSwitchCount >= 3) {
+                        socket.emit('cheating_alert', {
+                            exam_id: examData.exam_id,
+                            attempt_id: examData.attempt_id,
+                            student_id: userId,
+                            event_type: 'TabSwitch',
+                            event_description: `Vượt ngưỡng: ${tabSwitchCount} lần`
+                        });
+                    }
+                }
+            });
+
+            document.addEventListener('copy', (e) => {
+                e.preventDefault();
+                logCheating('CopyPaste', 'Cố gắng copy');
+                showToast('❌ Không được phép copy!', 'error');
+            });
+
+            document.addEventListener('paste', (e) => {
+                e.preventDefault();
+                logCheating('CopyPaste', 'Cố gắng paste');
+                showToast('❌ Không được phép paste!', 'error');
+            });
+
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showToast('❌ Không được phép chuột phải!', 'error');
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.key === 'u')) {
+                    e.preventDefault();
+                    logCheating('DevTools', 'Cố gắng mở DevTools');
+                    showToast('❌ Không được mở công cụ phát triển!', 'error');
+                }
+            });
+
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    // Fullscreen không được hỗ trợ
+                });
+            }
+        }
+
+        function updateTabSwitchWarning() {
+            const el = document.getElementById('tabSwitchWarning');
+            el.textContent = `Chuyển tab: ${tabSwitchCount}/3`;
+            if (tabSwitchCount >= 2) {
+                el.style.color = '#ff4757';
+                el.style.fontWeight = 'bold';
+            }
+        }
+
+        async function logCheating(eventType, description) {
+            const logId = `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.log(`🔍 [DEBUG] [${logId}] logCheating START: ${eventType} - ${description}`);
+            console.log(`🔍 [DEBUG] [${logId}] logCheating stack:`, new Error().stack);
+
+            try {
+                // Kiểm tra examData và attempt_id
+                if (!examData || !examData.exam_id || !examData.attempt_id) {
+                    console.error(`❌ [DEBUG] [${logId}] Thiếu examData hoặc attempt_id:`, examData);
+                    return null; // Trả về null thay vì undefined
+                }
+                console.log(`🔍 [DEBUG] [${logId}] examData OK:`, { exam_id: examData.exam_id, attempt_id: examData.attempt_id });
+
+                // Sử dụng apiPost từ api.js - wrap trong try-catch để tránh throw
+                try {
+                    console.log(`🔍 [DEBUG] [${logId}] Calling apiPost...`);
+                    const result = await apiPost(`/api/student/exams/${examData.exam_id}/cheating-log`, {
+                        attempt_id: examData.attempt_id,
+                        event_type: eventType,
+                        event_description: description
+                    });
+                    console.log(`🔍 [DEBUG] [${logId}] apiPost SUCCESS:`, result);
+                    return result;
+                } catch (apiError) {
+                    // Bắt lỗi từ apiPost và log, KHÔNG throw
+                    console.error(`❌ [DEBUG] [${logId}] Lỗi API:`, apiError);
+                    console.error(`❌ [DEBUG] [${logId}] API error message:`, apiError.message);
+                    console.error(`❌ [DEBUG] [${logId}] API error stack:`, apiError.stack);
+                    console.error(`❌ [DEBUG] [${logId}] API error details:`, {
+                        message: apiError.message,
+                        name: apiError.name,
+                        stack: apiError.stack,
+                        data: apiError.data,
+                        response: apiError.response
+                    });
+                    // Trả về null thay vì throw để không gây unhandled rejection
+                    return null;
+                }
+            } catch (error) {
+                console.error(`❌ [DEBUG] [${logId}] Lỗi ghi log (sync):`, error);
+                console.error(`❌ [DEBUG] [${logId}] Error details:`, {
+                    message: error.message,
+                    data: error.data,
+                    exam_id: examData?.exam_id,
+                    attempt_id: examData?.attempt_id
+                });
+                // KHÔNG throw - trả về null để không gây unhandled rejection
+                return null;
+            }
+        }
+
+        function loadExam() {
+            document.getElementById('examTitle').textContent = examData.exam_name;
+
+            const questions = examData.questions;
+
+            // Kiểm tra và log để debug
+            if (!questions || questions.length === 0) {
+                console.error('❌ [loadExam] Không có câu hỏi!');
+                document.getElementById('questionContainer').innerHTML =
+                    '<div style="color: red; padding: 20px; text-align: center;">⚠️ Lỗi: Không có câu hỏi. Vui lòng reload trang.</div>';
+                return;
+            }
+
+            // Kiểm tra xem questions có options không
+            questions.forEach((q, i) => {
+                if (!q.options || !Array.isArray(q.options) || q.options.length === 0) {
+                    console.error(`❌ [loadExam] Question ${i + 1} (ID: ${q.question_id}) không có options:`, q);
+                }
+            });
+
+            const nav = document.getElementById('questionNav');
+
+            nav.innerHTML = questions.map((q, i) =>
+                `<button class="question-nav-btn" data-index="${i}" onclick="goToQuestion(${i})">${i + 1}</button>`
+            ).join('');
+
+            updateProgress();
+            showQuestion(0);
+            // Cập nhật trạng thái đã trả lời sau khi load exam
+            updateAnsweredStatus();
+        }
+
+        function showQuestion(index) {
+            if (index < 0 || index >= examData.questions.length) return;
+
+            currentQuestionIndex = index;
+            const question = examData.questions[index];
+
+            const container = document.getElementById('questionContainer');
+
+            let optionsHTML = '';
+
+            // Xử lý Essay và FillInBlank trước (không cần options)
+            if (question.question_type === 'Essay' || question.question_type === 'FillInBlank') {
+                optionsHTML = `<textarea class="textarea-answer" id="textAnswer" placeholder="Nhập câu trả lời của bạn...">${answers[question.question_id] || ''}</textarea>`;
+            } else if (question.question_type === 'SingleChoice') {
+                // Kiểm tra có options không
+                if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
+                    console.error('❌ [showQuestion] Question không có options:', question);
+                    optionsHTML = '<div style="color: red; padding: 20px; text-align: center;">⚠️ Lỗi: Câu hỏi không có đáp án. Vui lòng liên hệ giáo viên.</div>';
+                } else {
+                    // Kiểm tra answers có giá trị không (có thể là số hoặc string)
+                    const selectedAnswer = answers[question.question_id];
+                    optionsHTML = question.options.map((opt, i) => {
+                        // So sánh linh hoạt (== thay vì === để xử lý string vs number)
+                        const isChecked = selectedAnswer !== undefined && selectedAnswer !== null &&
+                            (selectedAnswer == opt.option_id || String(selectedAnswer) === String(opt.option_id));
+                        return `
+                <div class="option ${isChecked ? 'selected' : ''}" onclick="selectOption(${i})">
+                    <input type="radio" name="answer_${question.question_id}" value="${opt.option_id}" 
+                           ${isChecked ? 'checked' : ''}>
+                    <span>${String.fromCharCode(65 + i)}. ${opt.option_content}</span>
+                </div>
+            `;
+                    }).join('');
+                }
+            } else if (question.question_type === 'MultipleChoice') {
+                // Kiểm tra có options không
+                if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
+                    console.error('❌ [showQuestion] Question không có options:', question);
+                    optionsHTML = '<div style="color: red; padding: 20px; text-align: center;">⚠️ Lỗi: Câu hỏi không có đáp án. Vui lòng liên hệ giáo viên.</div>';
+                } else {
+                    const savedAnswers = answers[question.question_id] || [];
+                    // Đảm bảo savedAnswers là mảng và convert sang string để so sánh
+                    const answersArray = Array.isArray(savedAnswers) ? savedAnswers.map(a => String(a)) : [String(savedAnswers)].filter(Boolean);
+                    optionsHTML = question.options.map((opt, i) => {
+                        const optIdStr = String(opt.option_id);
+                        const isChecked = answersArray.some(a => String(a) === optIdStr);
+                        return `
+                    <div class="option ${isChecked ? 'selected' : ''}" onclick="toggleOption(${i})">
+                        <input type="checkbox" name="answer_${question.question_id}" value="${opt.option_id}"
+                               ${isChecked ? 'checked' : ''}>
+                        <span>${String.fromCharCode(65 + i)}. ${opt.option_content}</span>
+                    </div>
+                `;
+                    }).join('');
+                }
+            } else {
+                // Fallback cho các loại câu hỏi khác
+                optionsHTML = `<textarea class="textarea-answer" id="textAnswer" placeholder="Nhập câu trả lời của bạn...">${answers[question.question_id] || ''}</textarea>`;
+            }
+
+            container.innerHTML = `
+            <div class="question-meta">
+                <span class="meta-badge">Câu ${index + 1}/${examData.questions.length}</span>
+                <span class="meta-badge">${question.question_type}</span>
+                <span class="meta-badge">${question.difficulty}</span>
+                <span class="meta-badge">${question.points} điểm</span>
+            </div>
+            <div class="question-text">${question.question_content}</div>
+            <div class="options">${optionsHTML}</div>
+        `;
+
+            document.querySelectorAll('.question-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`.question-nav-btn[data-index="${index}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            document.getElementById('prevBtn').disabled = (index === 0);
+            document.getElementById('nextBtn').disabled = (index === examData.questions.length - 1);
+
+            updateProgress();
+            // Cập nhật trạng thái đã trả lời sau khi render
+            updateAnsweredStatus();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function isExamActive() {
+            const currentTime = Date.now();
+            const startTime = new Date(examData.start_time).getTime();
+            const durationMs = examData.duration * 60 * 1000;
+            return currentTime >= startTime && currentTime <= startTime + durationMs;
+        }
+
+        const autoSaveAnswer = debounce(async (questionId, answerText, optionId = null) => {
+            if (!isExamActive()) {
+                showToast('⏰ Bài thi đã hết giờ! Không thể lưu đáp án.', 'error');
+                return;
+            }
+
+            try {
+                // Sử dụng apiPost từ api.js - tự động xử lý errors
+                await apiPost(`/api/student/exams/${examData.exam_id}/save-answer`, {
+                    attempt_id: examData.attempt_id,
+                    question_id: questionId,
+                    answer_text: answerText,
+                    option_id: optionId
+                });
+
+                updateAnsweredStatus();
+            } catch (error) {
+                console.error('❌ Error saving answer:', error);
+                showToast(`❌ Lỗi: ${error.message}`, 'error');
+            }
+        }, 500);
+
+        async function selectOption(index) {
+            const question = examData.questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            options[index].querySelector('input').checked = true;
+
+            const optionId = question.options[index].option_id;
+            answers[question.question_id] = optionId;
+            updateAnsweredStatus();
+
+            await autoSaveAnswer(question.question_id, null, optionId);
+        }
+
+        async function toggleOption(index) {
+            const question = examData.questions[currentQuestionIndex];
+            const option = document.querySelectorAll('.option')[index];
+            const checkbox = option.querySelector('input');
+
+            checkbox.checked = !checkbox.checked;
+            option.classList.toggle('selected');
+
+            if (!answers[question.question_id]) answers[question.question_id] = [];
+
+            const optionId = question.options[index].option_id;
+            if (checkbox.checked) {
+                answers[question.question_id].push(optionId);
+            } else {
+                answers[question.question_id] = answers[question.question_id].filter(a => a !== optionId);
+            }
+
+            updateAnsweredStatus();
+            await autoSaveAnswer(question.question_id, answers[question.question_id].join(','), null);
+        }
+
+        function updateAnsweredStatus() {
+            document.querySelectorAll('.question-nav-btn').forEach((btn, i) => {
+                const questionId = examData.questions[i].question_id;
+                if (answers[questionId]) {
+                    btn.classList.add('answered');
+                }
+            });
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(answers).filter(id => {
+                const answer = answers[id];
+                return answer !== null && answer !== undefined && (Array.isArray(answer) ? answer.length > 0 : answer !== '');
+            }).length;
+            const total = examData.questions.length;
+            document.getElementById('questionProgress').textContent = `${answered}/${total} câu`;
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < examData.questions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            showQuestion(index);
+        }
+
+        function startTimer() {
+            // Tính thời gian còn lại dựa trên start_time từ database (không reset khi reload)
+            if (examData.start_time) {
+                const startTime = new Date(examData.start_time).getTime();
+                const durationMs = examData.duration * 60 * 1000;
+                const endTime = startTime + durationMs;
+                const currentTime = Date.now();
+
+                // Tính thời gian còn lại (giây)
+                timeRemaining = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+
+                console.log('⏰ [Timer] Khởi tạo timer:', {
+                    start_time: examData.start_time,
+                    duration: examData.duration,
+                    current_time: new Date(currentTime).toISOString(),
+                    end_time: new Date(endTime).toISOString(),
+                    time_remaining: timeRemaining
+                });
+            } else {
+                // Fallback: nếu không có start_time, dùng duration (lần đầu vào trang)
+                const duration = examData.duration;
+                timeRemaining = duration * 60;
+            }
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+
+                const hours = Math.floor(timeRemaining / 3600);
+                const minutes = Math.floor((timeRemaining % 3600) / 60);
+                const seconds = timeRemaining % 60;
+
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent =
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeRemaining === 300) {
+                    timerEl.classList.add('warning');
+                    showToast('⏰ Còn 5 phút!', 'warning');
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showToast('⏰ Hết giờ! Đang tự động nộp bài...', 'error');
+                    setTimeout(submitExam, 2000);
+                }
+            }, 1000);
+        }
+
+        async function saveAnswerDirect(questionId, answerText, optionId = null) {
+            if (!isExamActive()) {
+                showToast('⏰ Bài thi đã hết giờ! Không thể lưu đáp án.', 'error');
+                return Promise.reject(new Error('Hết giờ'));
+            }
+
+            try {
+                // Sử dụng apiPost từ api.js - tự động xử lý errors
+                const result = await apiPost(`/api/student/exams/${examData.exam_id}/save-answer`, {
+                    attempt_id: examData.attempt_id,
+                    question_id: questionId,
+                    answer_text: answerText,
+                    option_id: optionId
+                });
+
+                return result;
+            } catch (error) {
+                console.error('❌ Error saving answer:', error);
+                throw error;
+            }
+        }
+
+        // Kiểm tra câu hỏi chưa làm
+        function getUnansweredQuestions() {
+            const unanswered = [];
+            examData.questions.forEach((question, index) => {
+                const questionId = question.question_id;
+                const answer = answers[questionId];
+                const hasAnswer = answer !== null && answer !== undefined &&
+                    (Array.isArray(answer) ? answer.length > 0 : answer !== '');
+                if (!hasAnswer) {
+                    unanswered.push({
+                        index: index + 1,
+                        question_id: questionId,
+                        question_content: question.question_content.substring(0, 100) + (question.question_content.length > 100 ? '...' : '')
+                    });
+                }
+            });
+            return unanswered;
+        }
+
+        // Hiển thị modal cảnh báo câu hỏi chưa làm
+        function showUnansweredWarning(unansweredQuestions) {
+            const modal = document.getElementById('unansweredWarningModal');
+            const content = document.getElementById('unansweredWarningContent');
+
+            content.innerHTML = `
+            <div style="background: #fff5f5; border-left: 4px solid #f56565; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="font-size: 16px; font-weight: 600; color: #742a2a; margin-bottom: 10px;">
+                    ⚠️ Bạn còn <strong>${unansweredQuestions.length}</strong> câu hỏi chưa trả lời!
+                </p>
+                <p style="color: #4a5568; margin-bottom: 15px; font-size: 14px;">
+                    Nếu bạn nộp bài ngay bây giờ, các câu hỏi chưa trả lời sẽ được tính là <strong>sai</strong> và bạn sẽ <strong>mất điểm</strong>.
+                </p>
+            </div>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <p style="font-weight: 600; margin-bottom: 10px; color: #2d3748;">Danh sách câu hỏi chưa trả lời:</p>
+                <div class="unanswered-list">
+                    ${unansweredQuestions.map(q => `
+                        <div class="unanswered-item">
+                            <strong style="color: #667eea;">Câu ${q.index}:</strong>
+                            <span style="color: #4a5568;">${q.question_content}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <div style="background: #e6fffa; border-left: 4px solid #38b2ac; padding: 15px; border-radius: 8px; display: flex; align-items: start; gap: 8px;">
+                <span style="font-size: 20px; flex-shrink: 0;">💡</span>
+                <p style="color: #234e52; font-size: 14px; margin: 0;">
+                    <strong>Gợi ý:</strong> Bạn có thể quay lại làm các câu hỏi này trước khi nộp bài để đạt điểm cao hơn.
+                </p>
+            </div>
+        `;
+
+            modal.style.display = 'flex';
+        }
+
+        // Đóng modal cảnh báo
+        function closeUnansweredModal() {
+            document.getElementById('unansweredWarningModal').style.display = 'none';
+        }
+
+        // Xác nhận nộp bài dù còn câu hỏi chưa làm
+        function confirmSubmitWithUnanswered() {
+            closeUnansweredModal();
+            // Gọi submitExam thực sự
+            submitExamActual();
+        }
+
+        // Function nộp bài thực sự (đã kiểm tra)
+        async function submitExamActual() {
+            // Dừng AI detection trước khi nộp bài
+            if (aiDetection) {
+                aiDetection.stopDetection();
+            }
+            if (!isExamActive()) {
+                showToast('⏰ Bài thi đã hết giờ! Đang nộp bài tự động...', 'warning');
+            }
+
+            clearInterval(timerInterval);
+            showToast('💾 Đang lưu câu trả lời...', 'info');
+
+            try {
+                const savePromises = [];
+                const failedQuestions = [];
+
+                for (const question of examData.questions) {
+                    if (answers[question.question_id]) {
+                        const answerText = question.question_type === 'MultipleChoice'
+                            ? (Array.isArray(answers[question.question_id])
+                                ? answers[question.question_id].join(',')
+                                : answers[question.question_id])
+                            : question.question_type === 'SingleChoice'
+                                ? null
+                                : answers[question.question_id];
+                        const optionId = question.question_type === 'SingleChoice'
+                            ? answers[question.question_id]
+                            : null;
+
+                        savePromises.push(
+                            saveAnswerDirect(question.question_id, answerText, optionId)
+                                .catch(error => {
+                                    console.error(`❌ Lỗi lưu câu ${question.question_id}:`, error);
+                                    failedQuestions.push(question.question_id);
+                                    throw error;
+                                })
+                        );
+                    }
+                }
+
+                await Promise.all(savePromises);
+
+                if (failedQuestions.length > 0) {
+                    showToast(`❌ Lỗi khi lưu các câu: ${failedQuestions.join(', ')}`, 'error');
+                    return;
+                }
+
+                // Sử dụng apiPost từ api.js - tự động xử lý errors
+                const result = await apiPost(`/api/student/exams/${examData.exam_id}/submit`, {
+                    attempt_id: examData.attempt_id
+                });
+
+                localStorage.removeItem('current_exam');
+                // Kiểm tra nếu có câu tự luận chưa chấm
+                const hasPendingGrading = (result.has_essay_questions && !result.is_fully_graded) || !result.is_fully_graded;
+                // Sử dụng total_points từ server response thay vì examData
+                showSubmitModal(result.score, result.total_points || examData.total_points || 100, result.message, hasPendingGrading);
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showToast(`❌ Lỗi: ${error.message}\nVui lòng thử lại!`, 'error');
+            }
+        }
+
+        // Function nộp bài (có kiểm tra câu hỏi chưa làm)
+        async function submitExam() {
+            // Kiểm tra câu hỏi chưa làm
+            const unansweredQuestions = getUnansweredQuestions();
+
+            // Nếu có câu hỏi chưa làm, hiển thị cảnh báo
+            if (unansweredQuestions.length > 0) {
+                showUnansweredWarning(unansweredQuestions);
+                return; // Dừng lại, chờ học sinh xác nhận
+            }
+
+            // Nếu không có câu hỏi chưa làm, hỏi xác nhận bình thường
+            if (!confirm('📤 Bạn có chắc muốn nộp bài?\n(Không thể làm lại sau khi nộp)')) {
+                return;
+            }
+
+            // Gọi submitExam thực sự
+            submitExamActual();
+        }
+
+        function showSubmitModal(score, totalPoints, message, hasPendingGrading = false) {
+            const modal = document.getElementById('submitModal');
+            const modalScore = document.getElementById('modalScore');
+            const modalMessage = document.getElementById('modalMessage');
+
+            // Nếu có câu tự luận chưa chấm, không hiển thị điểm
+            if (hasPendingGrading) {
+                modalScore.innerHTML = `
+                <div style="font-size: 24px; font-weight: 600; color: #667eea;">
+                    ✅ Đã hoàn thành bài thi
+                </div>
+            `;
+                modalMessage.textContent = message || 'Bài thi của bạn đang chờ giáo viên chấm điểm. Điểm số sẽ được cập nhật sau khi giáo viên hoàn tất chấm bài.';
+            } else {
+                // Format điểm: loại bỏ .0 khi không cần
+                const scoreNum = parseFloat(score || 0);
+                const totalNum = parseFloat(totalPoints || 0);
+                const displayScore = scoreNum % 1 === 0 ? scoreNum.toString() : scoreNum.toFixed(1);
+                const displayTotal = totalNum % 1 === 0 ? totalNum.toString() : totalNum.toFixed(1);
+
+                modalScore.textContent = `${displayScore}/${displayTotal}`;
+                modalMessage.textContent = message || 'Nộp bài thành công!';
+            }
+
+            modal.style.display = 'flex';
+
+            modal.dataset.examId = examData.exam_id;
+            modal.dataset.attemptId = examData.attempt_id;
+        }
+
+        function closeModal() {
+            document.getElementById('submitModal').style.display = 'none';
+            goToResult();
+        }
+
+        function goToResult() {
+            const modal = document.getElementById('submitModal');
+            const examId = modal.dataset.examId;
+            const attemptId = modal.dataset.attemptId;
+            window.location.href = `./student_result.html?exam_id=${examId}&attempt_id=${attemptId}`;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function showWarning(message) {
+            const warningId = `warning_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            console.log(`🔍 [DEBUG] [${warningId}] showWarning START:`, message);
+            console.log(`🔍 [DEBUG] [${warningId}] showWarning stack:`, new Error().stack);
+
+            try {
+                const banner = document.getElementById('warningBanner');
+                if (!banner) {
+                    console.error(`❌ [DEBUG] [${warningId}] Không tìm thấy warningBanner element!`);
+                    return;
+                }
+                console.log(`🔍 [DEBUG] [${warningId}] Banner element found, setting message...`);
+                banner.textContent = message;
+                banner.classList.add('show');
+                console.log(`🔍 [DEBUG] [${warningId}] Banner đã hiển thị`);
+
+                setTimeout(() => {
+                    console.log(`🔍 [DEBUG] [${warningId}] Hiding banner after 3s...`);
+                    banner.classList.remove('show');
+                    console.log(`🔍 [DEBUG] [${warningId}] Banner đã ẩn`);
+                }, 3000);
+                console.log(`🔍 [DEBUG] [${warningId}] showWarning END`);
+            } catch (error) {
+                console.error(`❌ [DEBUG] [${warningId}] Lỗi showWarning:`, error);
+                console.error(`❌ [DEBUG] [${warningId}] Error stack:`, error.stack);
+            }
+        }
+
+        // Lưu dữ liệu định kỳ để tránh mất dữ liệu khi reload
+        setInterval(() => {
+            if (examData && examData.attempt_id && examData.exam_id) {
+                try {
+                    localStorage.setItem('exam_answers', JSON.stringify(answers));
+                    localStorage.setItem('current_exam', JSON.stringify(examData));
+                } catch (err) {
+                    console.error('❌ Lỗi lưu dữ liệu:', err);
+                }
+            }
+        }, 5000); // Lưu mỗi 5 giây
+
+        // ⭐ XÓA beforeunload listener này - đã có listener ở trên để block reload
+        // Dữ liệu đã được lưu định kỳ mỗi 5 giây, không cần listener này
+        // KHÔNG thêm listener mới để tránh conflict và popup
+
+        // ⭐ XÓA pagehide listener - KHÔNG CẦN THIẾT
+        // pagehide event có thể trigger khi page reload, gây ra vòng lặp
+        // Thay vào đó, chỉ cleanup khi user thực sự submit exam hoặc đóng tab
+        // KHÔNG cleanup khi page reload tự động
+
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'textAnswer') {
+                const question = examData.questions[currentQuestionIndex];
+                answers[question.question_id] = e.target.value;
+                updateAnsweredStatus();
+                autoSaveAnswer(question.question_id, e.target.value, null);
+            }
+        });
+    </script>
+</body>
+
+</html>
